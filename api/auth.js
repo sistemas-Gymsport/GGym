@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // Manejo de peticiones preflight (CORS) necesarias en entornos de producción
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
@@ -11,7 +10,6 @@ export default async function handler(req, res) {
   try {
     const { username, password } = req.body;
 
-    // Validación de acceso al CMS
     if (username === 'admin' && password === 'GeoGym2026') {
       const token = Buffer.from(`${username}-${Date.now()}`).toString('base64');
       return res.status(200).json({ success: true, token });

@@ -694,8 +694,9 @@ ul {
 }
 
 .btn-edit:hover {
-  background-color: var(--bg-cremita);
-  color: var(--text-black);
+  background-color: rgba(246, 72, 81, 0.1);
+  color: var(--brand-coral);
+  border-color: rgba(246, 72, 81, 0.4);
 }
 
 .color-picker-wrapper {
@@ -713,32 +714,43 @@ ul {
 
 .data-table-wrapper {
   overflow-x: auto;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
 }
 
 .data-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   text-align: left;
 }
 
 .data-table th {
-  background-color: var(--text-charcoal);
-  color: var(--bg-white);
+  background-color: var(--bg-cremita);
+  color: var(--text-charcoal);
   padding: 1.25rem 1rem;
-  font-weight: 600;
+  font-weight: 700;
+  border-bottom: 2px solid var(--border-color);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
 }
 
 .data-table td {
-  padding: 1rem;
+  padding: 1.25rem 1rem;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-charcoal);
+  vertical-align: middle;
 }
 
-.data-table tr:hover {
-  background-color: var(--bg-cremita);
+.data-table tr:last-child td {
+  border-bottom: none;
 }
 
-/* Modales */
+.data-table tr:hover td {
+  background-color: rgba(235, 232, 226, 0.5);
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;

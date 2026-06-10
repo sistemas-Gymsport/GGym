@@ -12,9 +12,23 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     try {
-      const { name, email, phone, location } = req.body;
+      const { action, id, name, email, phone, location } = req.body;
+
+      if (action === 'delete') {
+        const result = await query('DELETE FROM leads WHERE id = $1 RETURNING *', [id]);
+        return res.status(200).json({ success: true, data: result.rows[0] });
+      }
+
+      if (action === 'update') {
+        const result = await query(
+          'UPDATE leads SET name = $1, email = $2, phone = $3, location = $4 WHERE id = $5 RETURNING *',
+          [name, email, phone, location, id]
+        );
+        return res.status(200).json({ success: true, data: result.rows[0] });
+      }
+
       if (!name || !email) {
-        return res.status(400).json({ error: 'Missing required fields' });
+        return res.status(400).json({ error: 'Faltan campos requeridos' });
       }
       const dbQuery = `
         INSERT INTO leads (name, email, phone, location, created_at)

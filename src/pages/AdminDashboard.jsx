@@ -15,6 +15,9 @@ export default function AdminDashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingLoc, setEditingLoc] = useState(null);
 
+  const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
+  const [editingLead, setEditingLead] = useState(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -96,6 +99,7 @@ export default function AdminDashboard() {
 
   const handleDeleteLocation = async (id) => {
     if (!window.confirm('¿Estás seguro de eliminar esta sucursal?')) return;
+    if (!window.confirm('Esta acción es irreversible. ¿Confirmas la eliminación definitiva?')) return;
     setSavingStatus('eliminando');
     try {
       const response = await fetch('/api/cms', {
@@ -198,6 +202,74 @@ export default function AdminDashboard() {
   const openLocationModal = (loc) => {
     setEditingLoc(loc);
     setIsModalOpen(true);
+  };
+
+  const openLeadModal = (lead = null) => {
+    if (lead) {
+      setEditingLead(lead);
+    } else {
+      setEditingLead({ name: '', email: '', phone: '', location: '' });
+    }
+    setIsLeadModalOpen(true);
+  };
+
+  const handleSaveLead = async (e) => {
+    e.preventDefault();
+    setSavingStatus('guardando');
+    try {
+      const isUpdate = !!editingLead.id;
+      const payload = isUpdate
+        ? { action: 'update', ...editingLead }
+        : { ...editingLead };
+
+      const response = await fetch('/api/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json();
+      if (result.success) {
+        if (isUpdate) {
+          setLeads(leads.map(l => l.id === result.data.id ? result.data : l));
+        } else {
+          setLeads([result.data, ...leads]);
+        }
+        setIsLeadModalOpen(false);
+        setSavingStatus('guardado');
+        setTimeout(() => setSavingStatus(null), 1500);
+      } else {
+        throw new Error('Error API');
+      }
+    } catch (err) {
+      setSavingStatus('error');
+      setTimeout(() => setSavingStatus(null), 2500);
+    }
+  };
+
+  const handleDeleteLead = async (id) => {
+    if (!window.confirm('¿Estás seguro de eliminar este prospecto?')) return;
+    if (!window.confirm('Esta acción eliminará el registro de la base de datos permanentemente. ¿Confirmar?')) return;
+    
+    setSavingStatus('eliminando');
+    try {
+      const response = await fetch('/api/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', id })
+      });
+      const result = await response.json();
+      if (result.success) {
+        setLeads(leads.filter(l => l.id !== id));
+        setIsLeadModalOpen(false);
+        setSavingStatus('guardado');
+        setTimeout(() => setSavingStatus(null), 1500);
+      } else {
+        throw new Error('Error API');
+      }
+    } catch (err) {
+      setSavingStatus('error');
+      setTimeout(() => setSavingStatus(null), 2500);
+    }
   };
 
   const menuItems = [
@@ -372,6 +444,12 @@ export default function AdminDashboard() {
 
         {activeSection === 'leads' && (
           <div className="admin-card data-table-wrapper" style={{ padding: 0, overflow: 'hidden' }}>
+            <div className="admin-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem 2rem', margin: 0, borderBottom: '1px solid var(--border-color)' }}>
+              <h3 style={{ margin: 0 }}>Registro de Prospectos</h3>
+              <button onClick={() => openLeadModal()} className="btn btn-primary" style={{ padding: '0.5rem 1.5rem', fontSize: '1rem' }}>
+                + Añadir Prospecto
+              </button>
+            </div>
             <table className="data-table">
               <thead>
                 <tr>
@@ -380,16 +458,22 @@ export default function AdminDashboard() {
                   <th>Teléfono</th>
                   <th>Sucursal</th>
                   <th>Fecha Registro</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {leads.map(lead => (
                   <tr key={lead.id}>
-                    <td>{lead.name}</td>
+                    <td><strong>{lead.name}</strong></td>
                     <td>{lead.email}</td>
                     <td>{lead.phone}</td>
-                    <td><strong>{lead.location}</strong></td>
+                    <td>{lead.location}</td>
                     <td>{new Date(lead.created_at).toLocaleDateString()}</td>
+                    <td>
+                      <button onClick={() => openLeadModal(lead)} className="btn-edit" style={{ padding: '0.25rem 0.75rem', fontSize: '0.8rem' }}>
+                        Editar
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -484,6 +568,73 @@ export default function AdminDashboard() {
                 Cerrar y Guardar
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {isLeadModalOpen && editingLead && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: '600px' }}>
+            <div className="modal-header">
+              <h3>{editingLead.id ? 'Editar Prospecto' : 'Añadir Nuevo Prospecto'}</h3>
+              <button onClick={() => setIsLeadModalOpen(false)} className="btn-close">&times;</button>
+            </div>
+            <form onSubmit={handleSaveLead}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label className="form-label">Nombre Completo</label>
+                  <input 
+                    type="text" 
+                    required 
+                    value={editingLead.name} 
+                    onChange={(e) => setEditingLead({...editingLead, name: e.target.value})} 
+                    className="form-input" 
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Correo Electrónico</label>
+                  <input 
+                    type="email" 
+                    required 
+                    value={editingLead.email} 
+                    onChange={(e) => setEditingLead({...editingLead, email: e.target.value})} 
+                    className="form-input" 
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Teléfono</label>
+                  <input 
+                    type="tel" 
+                    value={editingLead.phone} 
+                    onChange={(e) => setEditingLead({...editingLead, phone: e.target.value})} 
+                    className="form-input" 
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Sucursal de Interés</label>
+                  <select 
+                    value={editingLead.location} 
+                    onChange={(e) => setEditingLead({...editingLead, location: e.target.value})} 
+                    className="form-input"
+                  >
+                    <option value="">Seleccione una sucursal</option>
+                    {cmsData.locations.map(loc => (
+                      <option key={loc.id} value={loc.name}>{loc.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="modal-footer">
+                {editingLead.id && (
+                  <button type="button" onClick={() => handleDeleteLead(editingLead.id)} className="btn-delete">
+                    Eliminar Prospecto
+                  </button>
+                )}
+                <button type="submit" className="btn btn-primary">
+                  Guardar Datos
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

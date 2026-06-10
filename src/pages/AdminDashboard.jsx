@@ -64,6 +64,7 @@ export default function AdminDashboard() {
   };
 
   const handleImageUpload = async (e, entityId, targetField, tableName) => {
+    if (!e.target.files || e.target.files.length === 0) return;
     setSavingStatus('subiendo_imagen');
     const file = e.target.files[0];
     const reader = new FileReader();
@@ -96,6 +97,40 @@ export default function AdminDashboard() {
     };
   };
 
+  const handleDeleteImage = async (url, entityId, targetField, tableName) => {
+    if (!url) return;
+    setSavingStatus('eliminando_imagen');
+    try {
+      const parts = url.split('/');
+      const filename = parts.pop().split('.')[0];
+      const folder = parts.pop();
+      const publicId = `${folder}/${filename}`;
+
+      const response = await fetch('/api/media', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ publicId, entityId, targetField, tableName })
+      });
+      const result = await response.json();
+      if (result.success) {
+        setCmsData(prev => ({
+          ...prev,
+          [tableName === 'locations' ? 'locations' : tableName]: 
+            tableName === 'locations' 
+              ? prev.locations.map(loc => loc.id === entityId ? { ...loc, [targetField]: '' } : loc)
+              : { ...prev[tableName], [targetField]: '' }
+        }));
+        setSavingStatus('guardado');
+        setTimeout(() => setSavingStatus(null), 1500);
+      } else {
+        throw new Error('Error al eliminar');
+      }
+    } catch (err) {
+      setSavingStatus('error');
+      setTimeout(() => setSavingStatus(null), 2500);
+    }
+  };
+
   const menuItems = [
     { id: 'branding', label: 'Identidad y Logo' },
     { id: 'hero', label: 'Sección Hero' },
@@ -103,61 +138,92 @@ export default function AdminDashboard() {
     { id: 'leads', label: 'Prospectos / Leads' }
   ];
 
-  if (loading || !cmsData) return <div className="p-20 text-center font-bold text-[#393939]">Cargando Panel GEO GYM...</div>;
+  if (loading || !cmsData) return <div style={{ padding: '5rem', textAlign: 'center', fontSize: '1.5rem', fontWeight: 'bold' }}>Cargando Panel GEO GYM...</div>;
 
   return (
-    <div className="min-h-screen bg-[#ebe8e2] flex">
-      <aside className="w-64 bg-[#393939] text-white flex flex-col shadow-xl">
-        <div className="p-6 border-b border-gray-700">
-          <h1 className="text-xl font-bold tracking-widest text-center">GEO <span className="text-[#f64851]">GYM</span></h1>
-          <p className="text-xs text-center text-gray-400 mt-1">CMS Control de Ubicaciones</p>
+    <div className="admin-layout">
+      <aside className="admin-sidebar">
+        <div className="admin-sidebar-header">
+          <h1>GEO <span>GYM</span></h1>
+          <p>CMS Control de Ubicaciones</p>
         </div>
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="admin-nav">
           {menuItems.map(item => (
-            <button key={item.id} onClick={() => setActiveSection(item.id)} className={`w-full text-left px-4 py-3 rounded-lg flex items-center transition-colors ${activeSection === item.id ? 'bg-[#f64851] text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}>
-              <span className="font-medium">{item.label}</span>
+            <button 
+              key={item.id} 
+              onClick={() => setActiveSection(item.id)} 
+              className={`admin-nav-btn ${activeSection === item.id ? 'active' : ''}`}
+            >
+              {item.label}
             </button>
           ))}
         </nav>
-        <div className="p-4 border-t border-gray-700">
-          <button onClick={() => { localStorage.removeItem('geo_gym_session'); navigate('/login'); }} className="w-full bg-[#f64851]/10 text-[#f64851] hover:bg-[#f64851]/20 py-2 rounded-md transition-colors font-medium border border-[#f64851]/40">Cerrar Sesión</button>
+        <div className="admin-logout-wrapper">
+          <button 
+            onClick={() => { localStorage.removeItem('geo_gym_session'); navigate('/login'); }} 
+            className="btn-logout"
+          >
+            Cerrar Sesión
+          </button>
         </div>
       </aside>
 
-      <main className="flex-1 p-10 overflow-y-auto">
-        <header className="flex justify-between items-center mb-10 pb-4 border-b border-gray-300">
-          <h2 className="text-3xl font-bold text-[#000000]">{menuItems.find(i => i.id === activeSection)?.label || ''}</h2>
-          <div className="flex items-center gap-4">
-            {savingStatus && <span className={`text-sm font-medium px-3 py-1 rounded-full ${savingStatus === 'guardado' ? 'bg-green-100 text-green-800' : savingStatus === 'guardando' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}`}>
-              {savingStatus === 'guardado' ? 'Cambios Guardados' : savingStatus === 'guardando' ? 'Guardando...' : 'Error al guardar'}
-            </span>}
-            <button onClick={() => { window.location.reload(); }} className="px-5 py-2 bg-white text-[#393939] border border-gray-300 rounded-md hover:bg-gray-50 transition-all font-medium shadow-sm">Recargar Datos</button>
+      <main className="admin-main">
+        <header className="admin-header">
+          <h2>{menuItems.find(i => i.id === activeSection)?.label || ''}</h2>
+          <div className="admin-header-actions">
+            {savingStatus && (
+              <span className={`status-message ${savingStatus === 'guardado' || savingStatus === 'imagen_subida' ? 'status-success' : 'status-error'}`} style={{ margin: 0, padding: '0.5rem 1rem' }}>
+                {savingStatus.replace('_', ' ').toUpperCase()}
+              </span>
+            )}
+            <button onClick={() => { window.location.reload(); }} className="btn btn-secondary" style={{ padding: '0.5rem 1rem' }}>
+              Recargar Datos
+            </button>
           </div>
         </header>
 
         {activeSection === 'branding' && (
-          <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-100 space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-              <div>
-                <label className="block text-sm font-bold text-[#393939] mb-3">Logo GEO GYM</label>
-                <div className="flex items-center gap-6 p-4 border border-gray-200 rounded-lg bg-[#ebe8e2]/20">
-                  <img src={cmsData.brandSettings.logoUrl || '/logo-placeholder.png'} alt="Logo CMS" className="h-20 w-auto object-contain p-2 bg-white rounded border" />
-                  <div className="flex-1">
-                    <input type="file" onChange={(e) => handleImageUpload(e, cmsData.brandSettings.id, 'logoUrl', 'brand_settings')} className="text-sm block w-full text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#f64851]/10 file:text-[#f64851] hover:file:bg-[#f64851]/20 cursor-pointer" />
-                    <p className="text-xs text-gray-500 mt-2">Formatos aceptados: PNG, JPG (fondo blanco/transparente)</p>
+          <div className="admin-card">
+            <div className="admin-grid">
+              <div className="admin-stack">
+                <div className="form-group">
+                  <label className="form-label">Nombre de Marca</label>
+                  <input 
+                    type="text" 
+                    defaultValue={cmsData.brandSettings.brandName} 
+                    onBlur={(e) => handleUpdate('brand_settings', 'brandName', e.target.value, cmsData.brandSettings.id)} 
+                    className="form-input" 
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Color de Acento Hexadecimal</label>
+                  <div className="color-picker-wrapper">
+                    <div className="color-preview" style={{ backgroundColor: cmsData.brandSettings.accentColor }}></div>
+                    <input 
+                      type="text" 
+                      defaultValue={cmsData.brandSettings.accentColor} 
+                      onBlur={(e) => handleUpdate('brand_settings', 'accentColor', e.target.value, cmsData.brandSettings.id)} 
+                      className="form-input" 
+                      placeholder="#f64851" 
+                    />
                   </div>
                 </div>
               </div>
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-bold text-[#393939] mb-2">Nombre de Marca</label>
-                  <input type="text" defaultValue={cmsData.brandSettings.brandName} onBlur={(e) => handleUpdate('brand_settings', 'brandName', e.target.value, cmsData.brandSettings.id)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f64851] focus:border-[#f64851] transition-all" />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-[#393939] mb-2">Color de Acento Hexadecimal</label>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-lg border border-gray-300" style={{ backgroundColor: cmsData.brandSettings.accentColor }}></div>
-                    <input type="text" defaultValue={cmsData.brandSettings.accentColor} onBlur={(e) => handleUpdate('brand_settings', 'accentColor', e.target.value, cmsData.brandSettings.id)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f64851] focus:border-[#f64851] transition-all" placeholder="#f64851" />
+              <div className="admin-stack">
+                <div className="form-group">
+                  <label className="form-label">Logo GEO GYM</label>
+                  <div className="image-preview-box">
+                    <img src={cmsData.brandSettings.logoUrl || '/logo-placeholder.png'} alt="Logo CMS" />
+                    <input 
+                      type="file" 
+                      onChange={(e) => handleImageUpload(e, cmsData.brandSettings.id, 'logoUrl', 'brand_settings')} 
+                    />
+                    {cmsData.brandSettings.logoUrl && (
+                      <button onClick={() => handleDeleteImage(cmsData.brandSettings.logoUrl, cmsData.brandSettings.id, 'logoUrl', 'brand_settings')} className="btn-delete">
+                        Eliminar Imagen
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -166,23 +232,44 @@ export default function AdminDashboard() {
         )}
 
         {activeSection === 'hero' && (
-          <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-100 space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-bold text-[#393939] mb-2">Título de la Landing</label>
-                  <input type="text" defaultValue={cmsData.hero.title} onBlur={(e) => handleUpdate('hero_settings', 'title', e.target.value, cmsData.hero.id)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f64851] focus:border-[#f64851] transition-all" />
+          <div className="admin-card">
+            <div className="admin-grid">
+              <div className="admin-stack">
+                <div className="form-group">
+                  <label className="form-label">Título de la Landing</label>
+                  <input 
+                    type="text" 
+                    defaultValue={cmsData.hero.title} 
+                    onBlur={(e) => handleUpdate('hero_settings', 'title', e.target.value, cmsData.hero.id)} 
+                    className="form-input" 
+                  />
                 </div>
-                <div>
-                  <label className="block text-sm font-bold text-[#393939] mb-2">Subtítulo</label>
-                  <textarea defaultValue={cmsData.hero.subtitle} onBlur={(e) => handleUpdate('hero_settings', 'subtitle', e.target.value, cmsData.hero.id)} rows={4} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f64851] focus:border-[#f64851] transition-all resize-none"></textarea>
+                <div className="form-group">
+                  <label className="form-label">Subtítulo</label>
+                  <textarea 
+                    defaultValue={cmsData.hero.subtitle} 
+                    onBlur={(e) => handleUpdate('hero_settings', 'subtitle', e.target.value, cmsData.hero.id)} 
+                    rows={4} 
+                    className="form-input" 
+                    style={{ resize: 'vertical' }}
+                  ></textarea>
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-bold text-[#393939] mb-3">Imagen Hero Principal</label>
-                <div className="flex flex-col gap-4 border border-gray-200 rounded-lg bg-[#ebe8e2]/20 p-4">
-                  <img src={cmsData.hero.imageUrl || '/hero-placeholder.jpg'} alt="Hero CMS" className="w-full h-48 object-cover rounded border" />
-                  <input type="file" onChange={(e) => handleImageUpload(e, cmsData.hero.id, 'imageUrl', 'hero_settings')} className="text-sm block w-full text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#f64851]/10 file:text-[#f64851] hover:file:bg-[#f64851]/20 cursor-pointer" />
+              <div className="admin-stack">
+                <div className="form-group">
+                  <label className="form-label">Imagen Hero Principal</label>
+                  <div className="image-preview-box">
+                    <img src={cmsData.hero.imageUrl || '/hero-placeholder.jpg'} alt="Hero CMS" />
+                    <input 
+                      type="file" 
+                      onChange={(e) => handleImageUpload(e, cmsData.hero.id, 'imageUrl', 'hero_settings')} 
+                    />
+                    {cmsData.hero.imageUrl && (
+                      <button onClick={() => handleDeleteImage(cmsData.hero.imageUrl, cmsData.hero.id, 'imageUrl', 'hero_settings')} className="btn-delete">
+                        Eliminar Imagen
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -190,43 +277,67 @@ export default function AdminDashboard() {
         )}
 
         {activeSection === 'locations' && (
-          <div className="space-y-10">
+          <div>
             {cmsData.locations.slice(0, 3).map((loc, index) => (
-              <div key={loc.id} className="bg-white p-8 rounded-xl shadow-lg border border-gray-100 space-y-8">
-                <header className="pb-4 border-b border-gray-200">
-                  <h3 className="text-2xl font-bold text-[#000000]">Sucursal {index + 1}: {loc.name}</h3>
-                </header>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                  <div className="space-y-6">
-                    <div>
-                      <label className="block text-sm font-bold text-[#393939] mb-2">Nombre de la Ubicación</label>
-                      <input type="text" defaultValue={loc.name} onBlur={(e) => handleUpdate('locations', 'name', e.target.value, loc.id)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f64851] focus:border-[#f64851] transition-all" />
+              <div key={loc.id} className="admin-card">
+                <div className="admin-card-header">
+                  <h3>Sucursal {index + 1}: {loc.name}</h3>
+                </div>
+                <div className="admin-grid">
+                  <div className="admin-stack">
+                    <div className="form-group">
+                      <label className="form-label">Nombre de la Ubicación</label>
+                      <input 
+                        type="text" 
+                        defaultValue={loc.name} 
+                        onBlur={(e) => handleUpdate('locations', 'name', e.target.value, loc.id)} 
+                        className="form-input" 
+                      />
                     </div>
-                    <div>
-                      <label className="block text-sm font-bold text-[#393939] mb-2">Dirección Completa</label>
-                      <input type="text" defaultValue={loc.address} onBlur={(e) => handleUpdate('locations', 'address', e.target.value, loc.id)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f64851] focus:border-[#f64851] transition-all" />
+                    <div className="form-group">
+                      <label className="form-label">Dirección Completa</label>
+                      <input 
+                        type="text" 
+                        defaultValue={loc.address} 
+                        onBlur={(e) => handleUpdate('locations', 'address', e.target.value, loc.id)} 
+                        className="form-input" 
+                      />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-bold text-[#393939] mb-2">Precio Mensual</label>
-                        <input type="text" defaultValue={loc.price} onBlur={(e) => handleUpdate('locations', 'price', e.target.value, loc.id)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f64851] focus:border-[#f64851] transition-all" placeholder="ej. 99.99" />
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                      <div className="form-group">
+                        <label className="form-label">Precio Mensual</label>
+                        <input 
+                          type="text" 
+                          defaultValue={loc.price} 
+                          onBlur={(e) => handleUpdate('locations', 'price', e.target.value, loc.id)} 
+                          className="form-input" 
+                        />
                       </div>
-                      <div>
-                        <label className="block text-sm font-bold text-[#393939] mb-2">Amenidades (CSV)</label>
-                        <input type="text" defaultValue={loc.amenities} onBlur={(e) => handleUpdate('locations', 'amenities', e.target.value, loc.id)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f64851] focus:border-[#f64851] transition-all" placeholder="ej. Piscina, Sauna" />
+                      <div className="form-group">
+                        <label className="form-label">Amenidades (CSV)</label>
+                        <input 
+                          type="text" 
+                          defaultValue={loc.amenities} 
+                          onBlur={(e) => handleUpdate('locations', 'amenities', e.target.value, loc.id)} 
+                          className="form-input" 
+                        />
                       </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-bold text-[#393939] mb-2">Código de Mapa Embed (iframe)</label>
-                      <textarea defaultValue={loc.mapEmbedCode} onBlur={(e) => handleUpdate('locations', 'mapEmbedCode', e.target.value, loc.id)} rows={4} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f64851] focus:border-[#f64851] transition-all resize-none text-xs font-mono"></textarea>
                     </div>
                   </div>
-                  <div className="space-y-6">
-                    <div>
-                      <label className="block text-sm font-bold text-[#393939] mb-3">Imagen de Sucursal</label>
-                      <div className="flex flex-col gap-4 border border-gray-200 rounded-lg bg-[#ebe8e2]/20 p-4">
-                        <img src={loc.imageUrl || '/location-placeholder.jpg'} alt={`CMS Location ${index}`} className="w-full h-48 object-cover rounded border" />
-                        <input type="file" onChange={(e) => handleImageUpload(e, loc.id, 'imageUrl', 'locations')} className="text-sm block w-full text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#f64851]/10 file:text-[#f64851] hover:file:bg-[#f64851]/20 cursor-pointer" />
+                  <div className="admin-stack">
+                    <div className="form-group">
+                      <label className="form-label">Imagen de Sucursal</label>
+                      <div className="image-preview-box">
+                        <img src={loc.imageUrl || '/location-placeholder.jpg'} alt={`CMS Location ${index}`} />
+                        <input 
+                          type="file" 
+                          onChange={(e) => handleImageUpload(e, loc.id, 'imageUrl', 'locations')} 
+                        />
+                        {loc.imageUrl && (
+                          <button onClick={() => handleDeleteImage(loc.imageUrl, loc.id, 'imageUrl', 'locations')} className="btn-delete">
+                            Eliminar Imagen
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -237,25 +348,25 @@ export default function AdminDashboard() {
         )}
 
         {activeSection === 'leads' && (
-          <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-            <table className="w-full text-left table-auto">
-              <thead className="bg-[#393939] text-white border-b border-gray-600">
+          <div className="admin-card data-table-wrapper" style={{ padding: 0, overflow: 'hidden' }}>
+            <table className="data-table">
+              <thead>
                 <tr>
-                  <th className="p-5 font-semibold">Nombre</th>
-                  <th className="p-5 font-semibold">Correo Electrónico</th>
-                  <th className="p-5 font-semibold">Teléfono</th>
-                  <th className="p-5 font-semibold">Sucursal</th>
-                  <th className="p-5 font-semibold">Fecha Registro</th>
+                  <th>Nombre</th>
+                  <th>Correo Electrónico</th>
+                  <th>Teléfono</th>
+                  <th>Sucursal</th>
+                  <th>Fecha Registro</th>
                 </tr>
               </thead>
               <tbody>
                 {leads.map(lead => (
-                  <tr key={lead.id} className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="p-5 text-[#000000]">{lead.name}</td>
-                    <td className="p-5 text-[#393939]">{lead.email}</td>
-                    <td className="p-5 text-[#393939]">{lead.phone}</td>
-                    <td className="p-5 text-[#000000] font-medium">{lead.location}</td>
-                    <td className="p-5 text-[#393939]">{new Date(lead.created_at).toLocaleDateString()}</td>
+                  <tr key={lead.id}>
+                    <td>{lead.name}</td>
+                    <td>{lead.email}</td>
+                    <td>{lead.phone}</td>
+                    <td><strong>{lead.location}</strong></td>
+                    <td>{new Date(lead.created_at).toLocaleDateString()}</td>
                   </tr>
                 ))}
               </tbody>

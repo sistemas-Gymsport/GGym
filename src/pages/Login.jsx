@@ -44,68 +44,60 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#ebe8e2] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="text-center text-3xl font-extrabold text-[#000000] tracking-wider">
-          GEO <span className="text-[#5b21b6]">GYM</span>
+    <div className="login-wrapper">
+      <div className="login-header">
+        <h2 className="title-main">
+          GEO <span>GYM</span>
         </h2>
-        <p className="mt-2 text-center text-sm text-[#393939]">
+        <p className="subtitle">
           CMS Interno - Panel de Control Organizacional
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-xl rounded-lg sm:px-10 border border-gray-100">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label className="block text-sm font-medium text-[#393939]">
-                Usuario Administrador
-              </label>
-              <div className="mt-1">
-                <input
-                  name="username"
-                  type="text"
-                  required
-                  value={credentials.username}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-[#000000] placeholder-gray-400 focus:outline-none focus:ring-[#5b21b6] focus:border-[#5b21b6] sm:text-sm transition-all"
-                />
-              </div>
-            </div>
+      <div className="login-card">
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">
+              Usuario Administrador
+            </label>
+            <input
+              name="username"
+              type="text"
+              required
+              value={credentials.username}
+              onChange={handleChange}
+              className="form-input"
+            />
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-[#393939]">
-                Contraseña
-              </label>
-              <div className="mt-1">
-                <input
-                  name="password"
-                  type="password"
-                  required
-                  value={credentials.password}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-[#000000] placeholder-gray-400 focus:outline-none focus:ring-[#5b21b6] focus:border-[#5b21b6] sm:text-sm transition-all"
-                />
-              </div>
-            </div>
+          <div className="form-group">
+            <label className="form-label">
+              Contraseña
+            </label>
+            <input
+              name="password"
+              type="password"
+              required
+              value={credentials.password}
+              onChange={handleChange}
+              className="form-input"
+            />
+          </div>
 
-            {error && (
-              <div className="p-3 bg-red-50 rounded-md text-red-700 text-sm font-medium text-center">
-                {error}
-              </div>
-            )}
-
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-md text-sm font-medium text-white bg-[#393939] hover:bg-[#000000] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5b21b6] transition-all disabled:opacity-50"
-              >
-                {loading ? 'Verificando...' : 'Ingresar al Panel'}
-              </button>
+          {error && (
+            <div className="status-message status-error">
+              {error}
             </div>
-          </form>
-        </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn btn-primary btn-block"
+          >
+            {loading ? 'Verificando...' : 'Ingresar al Panel'}
+          </button>
+        </form>
       </div>
     </div>
   );

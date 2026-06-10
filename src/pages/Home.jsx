@@ -40,7 +40,7 @@ export default function Home() {
   useEffect(() => {
     async function loadPageData() {
       try {
-        const response = await fetch('/api/media?type=all');
+        const response = await fetch('/api/cms');
         const result = await response.json();
         if (result.success && result.data) {
           setCmsData(prev => ({

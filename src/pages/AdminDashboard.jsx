@@ -21,11 +21,11 @@ export default function AdminDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const res = await fetch('/api/media?type=all');
+      const res = await fetch('/api/cms');
       const result = await res.json();
       if (result.success) setCmsData(result.data);
       
-      const leadsRes = await fetch('/api/lead?action=list');
+      const leadsRes = await fetch('/api/lead');
       const leadsResult = await leadsRes.json();
       if (leadsResult.success) setLeads(leadsResult.data);
     } catch (err) {
@@ -38,7 +38,7 @@ export default function AdminDashboard() {
   const handleUpdate = async (tableName, targetField, value, entityId) => {
     setSavingStatus('guardando');
     try {
-      const response = await fetch('/api/media', {
+      const response = await fetch('/api/cms', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tableName, targetField, value, entityId, action: 'update_text' })
@@ -51,6 +51,57 @@ export default function AdminDashboard() {
             tableName === 'locations' 
               ? prev.locations.map(loc => loc.id === entityId ? { ...loc, [targetField]: value } : loc)
               : { ...prev[tableName], [targetField]: value }
+        }));
+        setSavingStatus('guardado');
+        setTimeout(() => setSavingStatus(null), 1500);
+      } else {
+        throw new Error('Error API');
+      }
+    } catch (err) {
+      setSavingStatus('error');
+      setTimeout(() => setSavingStatus(null), 2500);
+    }
+  };
+
+  const handleAddLocation = async () => {
+    setSavingStatus('guardando');
+    try {
+      const response = await fetch('/api/cms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'create_location' })
+      });
+      const result = await response.json();
+      if (result.success) {
+        setCmsData(prev => ({
+          ...prev,
+          locations: [...prev.locations, result.data]
+        }));
+        setSavingStatus('guardado');
+        setTimeout(() => setSavingStatus(null), 1500);
+      } else {
+        throw new Error('Error API');
+      }
+    } catch (err) {
+      setSavingStatus('error');
+      setTimeout(() => setSavingStatus(null), 2500);
+    }
+  };
+
+  const handleDeleteLocation = async (id) => {
+    if (!window.confirm('¿Estás seguro de eliminar esta sucursal?')) return;
+    setSavingStatus('guardando');
+    try {
+      const response = await fetch('/api/cms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete_location', entityId: id })
+      });
+      const result = await response.json();
+      if (result.success) {
+        setCmsData(prev => ({
+          ...prev,
+          locations: prev.locations.filter(loc => loc.id !== id)
         }));
         setSavingStatus('guardado');
         setTimeout(() => setSavingStatus(null), 1500);
@@ -145,6 +196,7 @@ export default function AdminDashboard() {
       <aside className="admin-sidebar">
         <div className="admin-sidebar-header">
           <h1>GEO <span>GYM</span></h1>
+          <p>CMS Control de Ubicaciones</p>
         </div>
         <nav className="admin-nav">
           {menuItems.map(item => (
@@ -277,10 +329,20 @@ export default function AdminDashboard() {
 
         {activeSection === 'locations' && (
           <div>
-            {cmsData.locations.slice(0, 3).map((loc, index) => (
+            <div className="admin-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <h3>Gestión de Sucursales</h3>
+              <button onClick={handleAddLocation} className="btn btn-primary" style={{ padding: '0.5rem 1.5rem', fontSize: '1rem' }}>
+                + Añadir Sucursal
+              </button>
+            </div>
+            
+            {cmsData.locations.map((loc, index) => (
               <div key={loc.id} className="admin-card">
-                <div className="admin-card-header">
+                <div className="admin-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <h3>Sucursal {index + 1}: {loc.name}</h3>
+                  <button onClick={() => handleDeleteLocation(loc.id)} className="btn-delete">
+                    Eliminar Sucursal
+                  </button>
                 </div>
                 <div className="admin-grid">
                   <div className="admin-stack">
@@ -313,13 +375,13 @@ export default function AdminDashboard() {
                         />
                       </div>
                       <div className="form-group">
-                        <label className="form-label">Amenidades (CSV)</label>
-                        <input 
-                          type="text" 
+                        <label className="form-label">Amenidades (Bloque de texto)</label>
+                        <textarea 
                           defaultValue={loc.amenities} 
                           onBlur={(e) => handleUpdate('locations', 'amenities', e.target.value, loc.id)} 
                           className="form-input" 
-                        />
+                          rows={6}
+                        ></textarea>
                       </div>
                     </div>
                   </div>

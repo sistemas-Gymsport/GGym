@@ -1,20 +1,34 @@
 :root {
-  /* Paleta de colores principal */
+  /* Paleta Oficial GEO GYM */
   --bg-cremita: #ebe8e2;
-  --bg-white: #ffffff;
+  --brand-coral: #f64851;
   --text-charcoal: #393939;
   --text-black: #000000;
-  --accent-purple: #5b21b6;
+  --bg-white: #ffffff;
   --border-color: #d1cec7;
+  
+  /* Sombras y transiciones */
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+  --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
+  --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.15);
+  --transition: all 0.3s ease;
+}
+
+/* =========================================
+   Reset y Base
+========================================= */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
   background-color: var(--bg-cremita);
   color: var(--text-charcoal);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
@@ -24,56 +38,221 @@ body {
   flex-direction: column;
 }
 
-/* A partir de aquí puedes definir tus clases de CSS puro. 
-  Como eliminamos Tailwind, tendrás que reemplazar los className="bg-white p-8..." 
-  de tus componentes JSX por clases estándar como estas:
-*/
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: var(--transition);
+}
 
+ul {
+  list-style: none;
+}
+
+/* =========================================
+   Layouts / Contenedores
+========================================= */
 .container {
-  max-width: 1280px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
 }
 
+.section {
+  padding: 5rem 0;
+}
+
 .section-white {
   background-color: var(--bg-white);
-  padding: 4rem 0;
 }
 
 .section-cremita {
   background-color: var(--bg-cremita);
-  padding: 4rem 0;
 }
 
-.card {
-  background-color: var(--bg-white);
-  border: 1px solid var(--border-color);
-  border-radius: 0.75rem;
-  padding: 2rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+/* =========================================
+   Tipografía
+========================================= */
+.title-main {
+  color: var(--text-black);
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
 }
 
-.btn-primary {
-  background-color: var(--accent-purple);
-  color: var(--bg-white);
-  padding: 1rem 2rem;
-  border: none;
-  border-radius: 0.5rem;
-  font-weight: bold;
-  cursor: pointer;
-  text-decoration: none;
+.title-main span {
+  color: var(--brand-coral);
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: var(--text-charcoal);
+  max-width: 600px;
+  margin-bottom: 2.5rem;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text-black);
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+/* =========================================
+   Botones
+========================================= */
+.btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.3s ease;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  border: none;
+  transition: var(--transition);
+}
+
+.btn-primary {
+  background-color: var(--brand-coral);
+  color: var(--bg-white);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-primary:hover {
-  opacity: 0.9;
+  background-color: #d93d45;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
-.text-title {
+.btn-secondary {
+  background-color: var(--bg-cremita);
   color: var(--text-black);
-  font-size: 3rem;
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background-color: #dfdbd3;
+}
+
+/* =========================================
+   Componentes Específicos
+========================================= */
+/* Navbar */
+.navbar {
+  background-color: var(--bg-white);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+
+.navbar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 80px;
+}
+
+.nav-logo {
+  font-size: 1.5rem;
   font-weight: 800;
+  color: var(--text-black);
+  letter-spacing: 1px;
+}
+
+.nav-logo span {
+  color: var(--brand-coral);
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.nav-links a {
+  font-weight: 500;
+  color: var(--text-charcoal);
+}
+
+.nav-links a:hover {
+  color: var(--brand-coral);
+}
+
+/* Hero */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: calc(100vh - 80px); /* Resta la altura del navbar */
+  background-color: var(--bg-white);
+}
+
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem 2rem 4rem 10%;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-color: var(--bg-cremita);
+}
+
+/* Formularios */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text-black);
+}
+
+.form-input {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  background-color: var(--bg-white);
+  color: var(--text-charcoal);
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--brand-coral);
+  box-shadow: 0 0 0 3px rgba(246, 72, 81, 0.2);
+}
+
+/* Responsive básico */
+@media (max-width: 992px) {
+  .hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  
+  .hero-content {
+    padding: 3rem 2rem;
+    align-items: center;
+  }
+
+  .nav-links {
+    display: none; /* Aquí iría la lógica de tu menú hamburguesa */
+  }
 }

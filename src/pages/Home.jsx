@@ -19,7 +19,7 @@ export default function Home() {
     },
     hero: {
       title: 'Alcanza tu mejor versión en',
-      subtitle: 'Instalaciones de lujo, equipo biomecánico advanced y un entorno diseñado para resultados reales.',
+      subtitle: 'Instalaciones de lujo, equipo biomecánico avanzado y un entorno diseñado para resultados reales.',
       imageUrl: ''
     },
     locations: []
@@ -40,7 +40,13 @@ export default function Home() {
         const response = await fetch('/api/media?type=all');
         const result = await response.json();
         if (result.success && result.data) {
-          setCmsData(result.data);
+          setCmsData(prev => ({
+            ...prev,
+            brandSettings: result.data.brandSettings || prev.brandSettings,
+            contactSettings: result.data.contactSettings || prev.contactSettings,
+            hero: result.data.hero || prev.hero,
+            locations: result.data.locations || []
+          }));
         }
       } catch (err) {
         setStatus(prev => ({ ...prev, error: err.message }));
@@ -90,7 +96,7 @@ export default function Home() {
         />
       </div>
 
-      <div id="sucursales" className="border-t border-gray-100 bg-[#ebe8e2]/50 py-16">
+      <div id="sucursales" className="border-t border-gray-100 bg-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-extrabold text-[#000000] sm:text-5xl">
@@ -104,35 +110,35 @@ export default function Home() {
         </div>
       </div>
 
-      <div id="contacto" className="bg-[#ebe8e2] py-16">
+      <div id="contacto" className="bg-white py-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white p-8 rounded-lg shadow-xl border border-gray-100">
+          <div className="bg-white p-8 rounded-xl shadow-2xl border border-gray-100">
             <h2 className="text-3xl font-extrabold text-[#000000] text-center mb-2">
               Comienza tu Entrenamiento de Prueba
             </h2>
-            <p className="text-center text-gray-600 mb-8">
+            <p className="text-center text-[#393939] mb-8">
               Agenda tu primera sesión sin costo y conoce nuestras instalaciones exclusivas.
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-[#393939]">Nombre Completo</label>
+                <label className="block text-sm font-bold text-[#393939]">Nombre Completo</label>
                 <input type="text" name="name" required value={formData.name} onChange={handleChange} className="mt-1 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md text-[#000000] focus:outline-none focus:ring-2 focus:ring-[#f64851] focus:border-transparent transition-all" />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-[#393939]">Correo Electrónico</label>
+                  <label className="block text-sm font-bold text-[#393939]">Correo Electrónico</label>
                   <input type="email" name="email" required value={formData.email} onChange={handleChange} className="mt-1 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md text-[#000000] focus:outline-none focus:ring-2 focus:ring-[#f64851] focus:border-transparent transition-all" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#393939]">Número de Teléfono</label>
+                  <label className="block text-sm font-bold text-[#393939]">Número de Teléfono</label>
                   <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className="mt-1 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md text-[#000000] focus:outline-none focus:ring-2 focus:ring-[#f64851] focus:border-transparent transition-all" placeholder="ej. 4421234567" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#393939]">Sucursal de Interés</label>
+                <label className="block text-sm font-bold text-[#393939]">Sucursal de Interés</label>
                 <select name="location" value={formData.location} onChange={handleChange} className="mt-1 block w-full px-4 py-3 bg-white border border-gray-300 rounded-md text-[#000000] focus:outline-none focus:ring-2 focus:ring-[#f64851] focus:border-transparent transition-all">
                   <option value="">Selecciona una sucursal</option>
                   {cmsData.locations.map(loc => (

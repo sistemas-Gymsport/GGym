@@ -11,6 +11,10 @@ export default function AdminDashboard() {
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [savingStatus, setSavingStatus] = useState(null);
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingLoc, setEditingLoc] = useState(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -64,7 +68,7 @@ export default function AdminDashboard() {
   };
 
   const handleAddLocation = async () => {
-    setSavingStatus('guardando');
+    setSavingStatus('creando');
     try {
       const response = await fetch('/api/cms', {
         method: 'POST',
@@ -77,6 +81,8 @@ export default function AdminDashboard() {
           ...prev,
           locations: [...prev.locations, result.data]
         }));
+        setEditingLoc(result.data);
+        setIsModalOpen(true);
         setSavingStatus('guardado');
         setTimeout(() => setSavingStatus(null), 1500);
       } else {
@@ -90,7 +96,7 @@ export default function AdminDashboard() {
 
   const handleDeleteLocation = async (id) => {
     if (!window.confirm('¿Estás seguro de eliminar esta sucursal?')) return;
-    setSavingStatus('guardando');
+    setSavingStatus('eliminando');
     try {
       const response = await fetch('/api/cms', {
         method: 'POST',
@@ -104,6 +110,7 @@ export default function AdminDashboard() {
           locations: prev.locations.filter(loc => loc.id !== id)
         }));
         setSavingStatus('guardado');
+        setIsModalOpen(false);
         setTimeout(() => setSavingStatus(null), 1500);
       } else {
         throw new Error('Error API');
@@ -129,6 +136,9 @@ export default function AdminDashboard() {
         });
         const result = await response.json();
         if (result.success) {
+          if (tableName === 'locations' && editingLoc && editingLoc.id === entityId) {
+            setEditingLoc(prev => ({ ...prev, [targetField]: result.url }));
+          }
           setCmsData(prev => ({
             ...prev,
             [tableName === 'locations' ? 'locations' : tableName]: 
@@ -164,6 +174,9 @@ export default function AdminDashboard() {
       });
       const result = await response.json();
       if (result.success) {
+        if (tableName === 'locations' && editingLoc && editingLoc.id === entityId) {
+          setEditingLoc(prev => ({ ...prev, [targetField]: '' }));
+        }
         setCmsData(prev => ({
           ...prev,
           [tableName === 'locations' ? 'locations' : tableName]: 
@@ -180,6 +193,11 @@ export default function AdminDashboard() {
       setSavingStatus('error');
       setTimeout(() => setSavingStatus(null), 2500);
     }
+  };
+
+  const openLocationModal = (loc) => {
+    setEditingLoc(loc);
+    setIsModalOpen(true);
   };
 
   const menuItems = [
@@ -336,75 +354,19 @@ export default function AdminDashboard() {
               </button>
             </div>
             
-            {cmsData.locations.map((loc, index) => (
-              <div key={loc.id} className="admin-card">
-                <div className="admin-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3>Sucursal {index + 1}: {loc.name}</h3>
-                  <button onClick={() => handleDeleteLocation(loc.id)} className="btn-delete">
-                    Eliminar Sucursal
-                  </button>
-                </div>
-                <div className="admin-grid">
-                  <div className="admin-stack">
-                    <div className="form-group">
-                      <label className="form-label">Nombre de la Ubicación</label>
-                      <input 
-                        type="text" 
-                        defaultValue={loc.name} 
-                        onBlur={(e) => handleUpdate('locations', 'name', e.target.value, loc.id)} 
-                        className="form-input" 
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Dirección Completa</label>
-                      <input 
-                        type="text" 
-                        defaultValue={loc.address} 
-                        onBlur={(e) => handleUpdate('locations', 'address', e.target.value, loc.id)} 
-                        className="form-input" 
-                      />
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                      <div className="form-group">
-                        <label className="form-label">Precio Mensual</label>
-                        <input 
-                          type="text" 
-                          defaultValue={loc.price} 
-                          onBlur={(e) => handleUpdate('locations', 'price', e.target.value, loc.id)} 
-                          className="form-input" 
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label">Amenidades (Bloque de texto)</label>
-                        <textarea 
-                          defaultValue={loc.amenities} 
-                          onBlur={(e) => handleUpdate('locations', 'amenities', e.target.value, loc.id)} 
-                          className="form-input" 
-                          rows={6}
-                        ></textarea>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="admin-stack">
-                    <div className="form-group">
-                      <label className="form-label">Imagen de Sucursal</label>
-                      <div className="image-preview-box">
-                        <img src={loc.imageUrl || '/location-placeholder.jpg'} alt={`CMS Location ${index}`} />
-                        <input 
-                          type="file" 
-                          onChange={(e) => handleImageUpload(e, loc.id, 'imageUrl', 'locations')} 
-                        />
-                        {loc.imageUrl && (
-                          <button onClick={() => handleDeleteImage(loc.imageUrl, loc.id, 'imageUrl', 'locations')} className="btn-delete">
-                            Eliminar Imagen
-                          </button>
-                        )}
-                      </div>
-                    </div>
+            <div className="list-grid">
+              {cmsData.locations.map((loc) => (
+                <div key={loc.id} className="location-item">
+                  <h4>{loc.name}</h4>
+                  <p>{loc.address}</p>
+                  <div className="location-item-actions">
+                    <button onClick={() => openLocationModal(loc)} className="btn-edit" style={{ flex: 1 }}>
+                      Editar Datos
+                    </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
 
@@ -435,6 +397,96 @@ export default function AdminDashboard() {
           </div>
         )}
       </main>
+
+      {isModalOpen && editingLoc && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Editar Sucursal: {editingLoc.name}</h3>
+              <button onClick={() => setIsModalOpen(false)} className="btn-close">&times;</button>
+            </div>
+            <div className="modal-body">
+              <div className="admin-grid">
+                <div className="admin-stack">
+                  <div className="form-group">
+                    <label className="form-label">Nombre de la Ubicación</label>
+                    <input 
+                      type="text" 
+                      defaultValue={editingLoc.name} 
+                      onBlur={(e) => {
+                        handleUpdate('locations', 'name', e.target.value, editingLoc.id);
+                        setEditingLoc({...editingLoc, name: e.target.value});
+                      }} 
+                      className="form-input" 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Dirección Completa</label>
+                    <input 
+                      type="text" 
+                      defaultValue={editingLoc.address} 
+                      onBlur={(e) => {
+                        handleUpdate('locations', 'address', e.target.value, editingLoc.id);
+                        setEditingLoc({...editingLoc, address: e.target.value});
+                      }} 
+                      className="form-input" 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Precio Destacado</label>
+                    <input 
+                      type="text" 
+                      defaultValue={editingLoc.price} 
+                      onBlur={(e) => {
+                        handleUpdate('locations', 'price', e.target.value, editingLoc.id);
+                        setEditingLoc({...editingLoc, price: e.target.value});
+                      }} 
+                      className="form-input" 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Amenidades y Bloques (Usa el símbolo | para crear etiquetas)</label>
+                    <textarea 
+                      defaultValue={editingLoc.amenities} 
+                      onBlur={(e) => {
+                        handleUpdate('locations', 'amenities', e.target.value, editingLoc.id);
+                        setEditingLoc({...editingLoc, amenities: e.target.value});
+                      }} 
+                      className="form-input" 
+                      rows={8}
+                    ></textarea>
+                  </div>
+                </div>
+                <div className="admin-stack">
+                  <div className="form-group">
+                    <label className="form-label">Imagen de Sucursal</label>
+                    <div className="image-preview-box">
+                      <img src={editingLoc.imageUrl || '/location-placeholder.jpg'} alt="Preview" />
+                      <input 
+                        type="file" 
+                        onChange={(e) => handleImageUpload(e, editingLoc.id, 'imageUrl', 'locations')} 
+                      />
+                      {editingLoc.imageUrl && (
+                        <button onClick={() => handleDeleteImage(editingLoc.imageUrl, editingLoc.id, 'imageUrl', 'locations')} className="btn-delete">
+                          Eliminar Imagen
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button onClick={() => handleDeleteLocation(editingLoc.id)} className="btn-delete">
+                Eliminar Sucursal Definitivamente
+              </button>
+              <button onClick={() => setIsModalOpen(false)} className="btn btn-primary">
+                Cerrar y Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

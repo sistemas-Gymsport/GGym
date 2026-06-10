@@ -1,9 +1,21 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+:root {
+  background-color: #ebe8e2; /* Fondo cremita base */
+  color: #393939; /* Negro/Gris oscuro para textos */
+}
 
 body {
-  background-color: #ffffff;
-  color: #000000;
   margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* El root ahora ocupa el 100% permitiendo el diseño full-width */
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }

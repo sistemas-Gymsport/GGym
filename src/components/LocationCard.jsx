@@ -6,30 +6,36 @@ export default function LocationCard({ location }) {
     const lines = text.split('\n');
 
     return lines.map((line, index) => {
-      if (line.trim() === '') return <br key={index} />;
+      const trimmed = line.trim();
+      
+      if (trimmed === '') {
+        return <div key={index} style={{ height: '0.75rem' }}></div>;
+      }
 
-      if (line.includes('|')) {
-        const parts = line.split('|');
+      if (trimmed.startsWith('•') || trimmed.startsWith('-')) {
         return (
-          <div key={index} className="badge-container">
-            {parts.map((part, i) => {
-              const cleanText = part.replace('•', '').trim();
-              const isHighlight = cleanText.includes('Día 1-7') || cleanText.includes('Trimestre') || cleanText.includes('2x1');
-              return (
-                <span key={i} className={`badge ${isHighlight ? 'badge-highlight' : ''}`}>
-                  {cleanText}
-                </span>
-              );
-            })}
-          </div>
+          <li key={index} className="list-item" style={{ marginBottom: '0.25rem' }}>
+            {trimmed.substring(1).trim()}
+          </li>
         );
       }
 
-      if (line.trim().startsWith('•')) {
-        return <li key={index} className="list-item">{line.replace('•', '').trim()}</li>;
+      if (trimmed.includes(':') && !trimmed.startsWith('http')) {
+        const parts = trimmed.split(':');
+        const label = parts.shift();
+        const rest = parts.join(':');
+        return (
+          <p key={index} className="text-block" style={{ marginBottom: '0.25rem' }}>
+            <strong style={{ color: 'var(--brand-coral)' }}>{label}:</strong>{rest}
+          </p>
+        );
       }
 
-      return <p key={index} className="text-block">{line}</p>;
+      return (
+        <p key={index} className="text-block" style={{ marginBottom: '0.25rem', fontWeight: '500' }}>
+          {trimmed}
+        </p>
+      );
     });
   };
 
@@ -43,22 +49,22 @@ export default function LocationCard({ location }) {
       </div>
       <div className="location-content">
         <h3>{location.name}</h3>
-        <p style={{ fontWeight: '600', color: 'var(--text-black)' }}>
+        <p style={{ fontWeight: '600', color: 'var(--text-black)', marginBottom: '1.5rem' }}>
           {location.address}
         </p>
         
-        <div className="location-price">
-          <h4>Planes Destacados</h4>
-          <div className="price-tag">
+        <div className="location-price" style={{ marginBottom: '1.5rem' }}>
+          <h4 style={{ color: 'var(--brand-coral)', fontSize: '1.25rem', marginBottom: '0.25rem' }}>Planes Destacados</h4>
+          <div className="price-tag" style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--text-black)' }}>
             {location.price}
           </div>
         </div>
 
-        <div className="location-amenities">
+        <div className="location-amenities" style={{ color: 'var(--text-charcoal)', lineHeight: '1.6' }}>
           {formatText(location.amenities)}
         </div>
         
-        <Link to="/contacto" className="btn btn-primary btn-block" style={{ marginTop: 'auto' }}>
+        <Link to="/contacto" className="btn btn-primary btn-block" style={{ marginTop: '2rem' }}>
           Inscribirme en {location.name}
         </Link>
       </div>

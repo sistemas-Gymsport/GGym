@@ -445,7 +445,7 @@ export default function AdminDashboard() {
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Amenidades y Bloques (Usa el símbolo | para crear etiquetas)</label>
+                    <label className="form-label">Amenidades y Descripción (Usa saltos de línea y viñetas •)</label>
                     <textarea 
                       defaultValue={editingLoc.amenities} 
                       onBlur={(e) => {

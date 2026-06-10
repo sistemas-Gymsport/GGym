@@ -11,28 +11,30 @@ export default function LocationCard({ location }) {
       </div>
       <div className="location-content">
         <h3>{location.name}</h3>
-        <p>{location.address}</p>
+        <p style={{ fontWeight: '600', color: 'var(--text-black)' }}>
+          {location.address}
+        </p>
         
         <div className="location-price">
-          <h4>Membresía Mensual</h4>
+          <h4>Planes y Mensualidades</h4>
           <div className="price-tag">
-            ${location.price}
-            <span>/mes</span>
+            {location.price}
           </div>
         </div>
 
-        <ul className="location-amenities">
-          {location.amenities && location.amenities.map((amenity, index) => (
-            <li key={index}>
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-              </svg>
-              {amenity}
-            </li>
-          ))}
-        </ul>
+        <div 
+          className="location-amenities" 
+          style={{ 
+            whiteSpace: 'pre-wrap', 
+            color: 'var(--text-charcoal)', 
+            lineHeight: '1.8',
+            fontSize: '0.95rem' 
+          }}
+        >
+          {location.amenities}
+        </div>
         
-        <Link to="/contacto" className="btn btn-primary btn-block">
+        <Link to="/contacto" className="btn btn-primary btn-block" style={{ marginTop: '1rem' }}>
           Inscribirme en {location.name}
         </Link>
       </div>

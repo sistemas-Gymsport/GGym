@@ -14,17 +14,17 @@ export default function Login() {
     });
   };
 
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
     try {
-      const response = await fetch('/api/media', {
-        method: 'PATCH',
+      const response = await fetch('/api/auth', { // Ruta actualizada
+        method: 'POST', // Método actualizado
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: 'auth',
           username: credentials.username,
           password: credentials.password
         })
@@ -49,9 +49,7 @@ export default function Login() {
         <h2 className="title-main">
           GEO <span>GYM</span>
         </h2>
-        <p className="subtitle">
-          CMS Interno - Panel de Control Organizacional
-        </p>
+        
       </div>
 
       <div className="login-card">

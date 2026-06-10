@@ -145,7 +145,6 @@ export default function AdminDashboard() {
       <aside className="admin-sidebar">
         <div className="admin-sidebar-header">
           <h1>GEO <span>GYM</span></h1>
-          <p>CMS Control de Ubicaciones</p>
         </div>
         <nav className="admin-nav">
           {menuItems.map(item => (

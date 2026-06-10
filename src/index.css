@@ -1,21 +1,79 @@
-@import "tailwindcss";
-
 :root {
-  background-color: #ebe8e2; /* Fondo cremita base */
-  color: #393939; /* Negro/Gris oscuro para textos */
+  /* Paleta de colores principal */
+  --bg-cremita: #ebe8e2;
+  --bg-white: #ffffff;
+  --text-charcoal: #393939;
+  --text-black: #000000;
+  --accent-purple: #5b21b6;
+  --border-color: #d1cec7;
 }
 
 body {
   margin: 0;
+  background-color: var(--bg-cremita);
+  color: var(--text-charcoal);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* El root ahora ocupa el 100% permitiendo el diseño full-width */
 #root {
   width: 100%;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+/* A partir de aquí puedes definir tus clases de CSS puro. 
+  Como eliminamos Tailwind, tendrás que reemplazar los className="bg-white p-8..." 
+  de tus componentes JSX por clases estándar como estas:
+*/
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.section-white {
+  background-color: var(--bg-white);
+  padding: 4rem 0;
+}
+
+.section-cremita {
+  background-color: var(--bg-cremita);
+  padding: 4rem 0;
+}
+
+.card {
+  background-color: var(--bg-white);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  background-color: var(--accent-purple);
+  color: var(--bg-white);
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.text-title {
+  color: var(--text-black);
+  font-size: 3rem;
+  font-weight: 800;
 }

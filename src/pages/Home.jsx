@@ -126,7 +126,7 @@ export default function Home() {
         <div className="container">
           <div className="form-card">
             <div className="section-header" style={{ marginBottom: '2rem' }}>
-              <h2 className="section-title">Comienza tu Entrenamiento de Prueba</h2>
+              <h2 className="section-title">Comienza tu Entrenamiento y solicita más información</h2>
             </div>
 
             <form onSubmit={handleSubmit}>

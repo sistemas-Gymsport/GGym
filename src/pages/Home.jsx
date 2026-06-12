@@ -127,9 +127,6 @@ export default function Home() {
           <div className="form-card">
             <div className="section-header" style={{ marginBottom: '2rem' }}>
               <h2 className="section-title">Comienza tu Entrenamiento de Prueba</h2>
-              <p className="subtitle" style={{ margin: '0 auto' }}>
-                Agenda tu primera sesión sin costo y conoce nuestras instalaciones exclusivas.
-              </p>
             </div>
 
             <form onSubmit={handleSubmit}>

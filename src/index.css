@@ -1159,6 +1159,31 @@ ul {
   padding-top: 0;
 }
 
+.wa-link-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #25D366;
+  color: #ffffff !important;
+  padding: 0.4rem 1rem;
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-decoration: none;
+}
+
+.wa-link-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
+  color: #ffffff !important;
+}
+
+.wa-icon {
+  width: 18px;
+  height: 18px;
+}
+
 @media (max-width: 992px) {
   .hero {
     grid-template-columns: 1fr;

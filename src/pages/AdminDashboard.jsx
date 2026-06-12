@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useId } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const defaultColors = {
+  accentColor: '#f64851',
+  bgCremita: '#ebe8e2',
+  bgWhite: '#ffffff',
+  textCharcoal: '#393939',
+  textBlack: '#000000',
+  borderColor: '#d1cec7'
+};
+
 const ImageDropzone = ({ currentImage, onUpload, onRemove, placeholderText }) => {
   const [dragActive, setDragActive] = useState(false);
   const [preview, setPreview] = useState(null);
@@ -37,8 +46,36 @@ const ImageDropzone = ({ currentImage, onUpload, onRemove, placeholderText }) =>
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onloadend = () => {
-      setPreview(reader.result);
-      setPendingFile(reader.result);
+      const img = new Image();
+      img.src = reader.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 1200;
+        const MAX_HEIGHT = 1200;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const compressedDataUrl = canvas.toDataURL('image/webp', 0.8);
+        setPreview(compressedDataUrl);
+        setPendingFile(compressedDataUrl);
+      };
     };
   };
 
@@ -103,7 +140,7 @@ const ImageDropzone = ({ currentImage, onUpload, onRemove, placeholderText }) =>
 export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [cmsData, setCmsData] = useState({
-    brandSettings: { id: 1, brandName: '', logoUrl: '', accentColor: '#f64851' },
+    brandSettings: { id: 1, brandName: '', logoUrl: '', accentColor: '#f64851', bgCremita: '#ebe8e2', bgWhite: '#ffffff', textCharcoal: '#393939', textBlack: '#000000', borderColor: '#d1cec7' },
     hero: { id: 1, title: '', subtitle: '', imageUrl: '' },
     locations: []
   });
@@ -124,6 +161,17 @@ export default function AdminDashboard() {
     if (!session) navigate('/login');
     fetchDashboardData();
   }, [navigate]);
+
+  useEffect(() => {
+    if (cmsData.brandSettings) {
+       document.documentElement.style.setProperty('--brand-coral', cmsData.brandSettings.accentColor || defaultColors.accentColor);
+       document.documentElement.style.setProperty('--bg-cremita', cmsData.brandSettings.bgCremita || defaultColors.bgCremita);
+       document.documentElement.style.setProperty('--bg-white', cmsData.brandSettings.bgWhite || defaultColors.bgWhite);
+       document.documentElement.style.setProperty('--text-charcoal', cmsData.brandSettings.textCharcoal || defaultColors.textCharcoal);
+       document.documentElement.style.setProperty('--text-black', cmsData.brandSettings.textBlack || defaultColors.textBlack);
+       document.documentElement.style.setProperty('--border-color', cmsData.brandSettings.borderColor || defaultColors.borderColor);
+    }
+  }, [cmsData.brandSettings]);
 
   const fetchDashboardData = async () => {
     try {
@@ -163,6 +211,32 @@ export default function AdminDashboard() {
       } else {
         throw new Error('Error API');
       }
+    } catch (err) {
+      setSavingStatus('error');
+      setTimeout(() => setSavingStatus(null), 2500);
+    }
+  };
+
+  const handleResetColors = async () => {
+    if (!window.confirm('¿Deseas restablecer todos los colores a los valores por defecto originales?')) return;
+    setSavingStatus('restableciendo colores...');
+    try {
+      await Promise.all(
+        Object.entries(defaultColors).map(([key, value]) =>
+          fetch('/api/cms', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tableName: 'brand_settings', targetField: key, value, entityId: cmsData.brandSettings.id, action: 'update_text' })
+          })
+        )
+      );
+      
+      setCmsData(prev => ({
+        ...prev,
+        brandSettings: { ...prev.brandSettings, ...defaultColors }
+      }));
+      setSavingStatus('colores restablecidos');
+      setTimeout(() => setSavingStatus(null), 2000);
     } catch (err) {
       setSavingStatus('error');
       setTimeout(() => setSavingStatus(null), 2500);
@@ -232,6 +306,11 @@ export default function AdminDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ file: dataUrl, entityId, targetField, tableName })
       });
+      
+      if (!response.ok) {
+        throw new Error('Error de servidor');
+      }
+
       const result = await response.json();
       if (result.success) {
         if (tableName === 'locations' && editingLoc && editingLoc.id === entityId) {
@@ -411,7 +490,7 @@ export default function AdminDashboard() {
           <h2>{menuItems.find(i => i.id === activeSection)?.label || ''}</h2>
           <div className="admin-header-actions">
             {savingStatus && (
-              <span className={`status-message ${savingStatus.includes('guardado') || savingStatus.includes('subida') ? 'status-success' : 'status-error'}`} style={{ margin: 0, padding: '0.5rem 1rem' }}>
+              <span className={`status-message ${savingStatus.includes('guardado') || savingStatus.includes('subida') || savingStatus.includes('restablecidos') ? 'status-success' : 'status-error'}`} style={{ margin: 0, padding: '0.5rem 1rem' }}>
                 {savingStatus.toUpperCase()}
               </span>
             )}
@@ -476,7 +555,7 @@ export default function AdminDashboard() {
             <div className="admin-card-header">
               <h3>Ajustes de Identidad Visual</h3>
               <p style={{ color: 'var(--text-charcoal)', fontSize: '0.9rem', marginTop: '0.5rem' }}>
-                Edita los campos de texto y haz clic fuera de ellos para que se guarden solos.
+                Edita los colores y textos. Los cambios se guardan al hacer clic fuera del campo.
               </p>
             </div>
             <div className="admin-grid">
@@ -490,20 +569,38 @@ export default function AdminDashboard() {
                     className="form-input" 
                   />
                 </div>
+                
                 <div className="form-group">
-                  <label className="form-label">Color de Acento Hexadecimal</label>
-                  <div className="color-picker-wrapper">
-                    <div className="color-preview" style={{ backgroundColor: cmsData.brandSettings.accentColor }}></div>
-                    <input 
-                      type="text" 
-                      defaultValue={cmsData.brandSettings.accentColor} 
-                      onBlur={(e) => handleUpdate('brand_settings', 'accentColor', e.target.value, cmsData.brandSettings.id)} 
-                      className="form-input" 
-                      placeholder="#f64851" 
-                    />
+                  <label className="form-label">Paleta de Colores</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    
+                    {[
+                      { key: 'accentColor', label: 'Color de Acento (Primario)', default: defaultColors.accentColor },
+                      { key: 'bgCremita', label: 'Fondo Secundario', default: defaultColors.bgCremita },
+                      { key: 'bgWhite', label: 'Fondo Principal (Tarjetas)', default: defaultColors.bgWhite },
+                      { key: 'textCharcoal', label: 'Texto Secundario', default: defaultColors.textCharcoal },
+                      { key: 'textBlack', label: 'Texto Principal', default: defaultColors.textBlack },
+                      { key: 'borderColor', label: 'Líneas y Bordes', default: defaultColors.borderColor }
+                    ].map(color => (
+                      <div key={color.key} className="color-picker-wrapper">
+                        <div className="color-preview" style={{ backgroundColor: cmsData.brandSettings[color.key] || color.default }}></div>
+                        <input 
+                          type="text" 
+                          defaultValue={cmsData.brandSettings[color.key] || color.default} 
+                          onBlur={(e) => handleUpdate('brand_settings', color.key, e.target.value, cmsData.brandSettings.id)} 
+                          className="form-input" 
+                          placeholder={color.default}
+                        />
+                      </div>
+                    ))}
+                    
                   </div>
+                  <button onClick={handleResetColors} className="btn btn-outline" style={{ marginTop: '1.5rem', width: '100%' }}>
+                    Restablecer Colores por Defecto
+                  </button>
                 </div>
               </div>
+              
               <div className="admin-stack">
                 <div className="form-group">
                   <label className="form-label">Logo GEO GYM</label>

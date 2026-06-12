@@ -13,7 +13,12 @@ export default function Home() {
       brandName: 'GEO GYM',
       logoUrl: '',
       description: 'Instalaciones de primer nivel, equipo biomecánico avanzado y un entorno exclusivo diseñado para exigir resultados reales.',
-      accentColor: '#f64851'
+      accentColor: '#f64851',
+      bgCremita: '#ebe8e2',
+      bgWhite: '#ffffff',
+      textCharcoal: '#393939',
+      textBlack: '#000000',
+      borderColor: '#d1cec7'
     },
     contactSettings: {
       address: 'Calle del Pathé 226, Ex Hacienda Santa Ana, 76116 Querétaro, Qro.',
@@ -45,7 +50,7 @@ export default function Home() {
         if (result.success && result.data) {
           setCmsData(prev => ({
             ...prev,
-            brandSettings: result.data.brandSettings || prev.brandSettings,
+            brandSettings: { ...prev.brandSettings, ...result.data.brandSettings },
             contactSettings: result.data.contactSettings || prev.contactSettings,
             hero: result.data.hero || prev.hero,
             locations: result.data.locations || []
@@ -57,6 +62,18 @@ export default function Home() {
     }
     loadPageData();
   }, []);
+
+  // Aplica los colores dinámicos al cambiar cmsData.brandSettings
+  useEffect(() => {
+    if (cmsData.brandSettings) {
+       document.documentElement.style.setProperty('--brand-coral', cmsData.brandSettings.accentColor);
+       document.documentElement.style.setProperty('--bg-cremita', cmsData.brandSettings.bgCremita);
+       document.documentElement.style.setProperty('--bg-white', cmsData.brandSettings.bgWhite);
+       document.documentElement.style.setProperty('--text-charcoal', cmsData.brandSettings.textCharcoal);
+       document.documentElement.style.setProperty('--text-black', cmsData.brandSettings.textBlack);
+       document.documentElement.style.setProperty('--border-color', cmsData.brandSettings.borderColor);
+    }
+  }, [cmsData.brandSettings]);
 
   useEffect(() => {
     if (locationPath.pathname === '/sucursales') {
@@ -126,7 +143,10 @@ export default function Home() {
         <div className="container">
           <div className="form-card">
             <div className="section-header" style={{ marginBottom: '2rem' }}>
-              <h2 className="section-title">Comienza tu Entrenamiento y solicita más información</h2>
+              <h2 className="section-title">Comienza tu Entrenamiento de Prueba</h2>
+              <p className="subtitle" style={{ margin: '0 auto' }}>
+                Agenda tu primera sesión sin costo y conoce nuestras instalaciones exclusivas.
+              </p>
             </div>
 
             <form onSubmit={handleSubmit}>

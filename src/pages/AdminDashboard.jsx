@@ -578,8 +578,10 @@ export default function AdminDashboard() {
                 Haz clic en el cuadro de color para abrir la paleta. Los cambios se guardan al hacer clic fuera del campo.
               </p>
             </div>
+
             <div className="admin-grid">
               <div className="admin-stack">
+
                 <div className="form-group">
                   <label className="form-label">Nombre de Marca</label>
                   <input 
@@ -589,9 +591,30 @@ export default function AdminDashboard() {
                     className="form-input" 
                   />
                 </div>
-                
+
+                <div className="form-group">
+                  <label className="form-label">Link de Facebook</label>
+                  <input 
+                    type="text" 
+                    defaultValue={cmsData.contactSettings?.facebook || ''} 
+                    onBlur={(e) => handleUpdate('contact_settings', 'facebook', e.target.value, cmsData.contactSettings.id)} 
+                    className="form-input" 
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Link de Instagram</label>
+                  <input 
+                    type="text" 
+                    defaultValue={cmsData.contactSettings?.instagram || ''} 
+                    onBlur={(e) => handleUpdate('contact_settings', 'instagram', e.target.value, cmsData.contactSettings.id)} 
+                    className="form-input" 
+                  />
+                </div>
+
                 <div className="form-group">
                   <label className="form-label">Paleta de Colores</label>
+
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     
                     {[
@@ -603,6 +626,7 @@ export default function AdminDashboard() {
                       { key: 'borderColor', label: 'Líneas y Bordes', default: defaultColors.borderColor }
                     ].map(color => (
                       <div key={color.key} className="color-picker-wrapper">
+                        
                         <input
                           type="color"
                           className="color-input-native"
@@ -610,6 +634,7 @@ export default function AdminDashboard() {
                           onChange={(e) => handleColorChange(color.key, e.target.value)}
                           onBlur={(e) => handleUpdate('brand_settings', color.key, e.target.value, cmsData.brandSettings.id)}
                         />
+
                         <input 
                           type="text" 
                           value={cmsData.brandSettings[color.key] || color.default} 
@@ -618,19 +643,28 @@ export default function AdminDashboard() {
                           className="form-input" 
                           placeholder={color.default}
                         />
+
                       </div>
                     ))}
-                    
+
                   </div>
-                  <button onClick={() => setShowResetConfirm(true)} className="btn btn-outline" style={{ marginTop: '1.5rem', width: '100%' }}>
+
+                  <button 
+                    onClick={() => setShowResetConfirm(true)} 
+                    className="btn btn-outline" 
+                    style={{ marginTop: '1.5rem', width: '100%' }}
+                  >
                     Restablecer Colores por Defecto
                   </button>
                 </div>
+
               </div>
-              
+
               <div className="admin-stack">
+
                 <div className="form-group">
                   <label className="form-label">Logo GEO GYM</label>
+
                   <ImageDropzone 
                     currentImage={cmsData.brandSettings.logoUrl}
                     onUpload={(dataUrl) => handleImageUploadConfirm(dataUrl, cmsData.brandSettings.id, 'logoUrl', 'brand_settings')}
@@ -638,6 +672,7 @@ export default function AdminDashboard() {
                     placeholderText="Arrastra el nuevo logo aquí"
                   />
                 </div>
+
               </div>
             </div>
           </div>

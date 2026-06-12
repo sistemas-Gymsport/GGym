@@ -7,6 +7,12 @@ export default function Footer({ brandSettings, contactSettings }) {
   const address = contactSettings?.address || 'Cerro del Pathé 226, Ex Hacienda Santa Ana, 76116 Querétaro, Qro.';
   const phone = contactSettings?.phone || '442 134 7882';
   const schedule = contactSettings?.schedule || 'Lunes a Viernes de 9 AM a 6 PM';
+  
+  // Asumimos que estos campos nuevos vendrán de la BD
+  const socialLinks = {
+    facebook: contactSettings?.facebook || '#',
+    instagram: contactSettings?.instagram || '#'
+  };
 
   const nameParts = brandName.split(' ');
   const firstPart = nameParts[0];
@@ -18,9 +24,14 @@ export default function Footer({ brandSettings, contactSettings }) {
         <div className="footer-grid">
           <div className="footer-brand">
             <Link to="/" className="nav-logo">
-              {firstPart} <span>{secondPart}</span>
+              {brandSettings?.logoUrl ? <img src={brandSettings.logoUrl} alt="Logo" className="nav-logo-img" style={{maxHeight:'50px'}}/> : <>{firstPart} <span>{secondPart}</span></>}
             </Link>
             <p>{description}</p>
+            {/* Animación de botones sociales */}
+            <div className="social-links-footer">
+              <a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="social-btn fb">FB</a>
+              <a href={socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="social-btn ig">IG</a>
+            </div>
           </div>
           
           <div className="footer-links">
@@ -34,7 +45,7 @@ export default function Footer({ brandSettings, contactSettings }) {
               </ul>
             </div>
             <div>
-              <h3>Contacto y Horarios</h3>
+              <h3>Contacto</h3>
               <ul>
                 <li>{address}</li>
                 <li>Tel: {phone}</li>
@@ -43,7 +54,6 @@ export default function Footer({ brandSettings, contactSettings }) {
             </div>
           </div>
         </div>
-        
         <div className="footer-bottom">
           <p>&copy; {new Date().getFullYear()} {brandName}. Todos los derechos reservados.</p>
         </div>

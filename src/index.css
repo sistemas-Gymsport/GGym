@@ -1184,6 +1184,32 @@ ul {
   height: 18px;
 }
 
+.social-links-footer {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.social-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+  font-size: 0.8rem;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.social-btn:hover {
+  transform: scale(1.2);
+}
+
+.social-btn.fb { background-color: #4267B2; }
+.social-btn.ig { background-color: #C13584; }
+
 @media (max-width: 992px) {
   .hero {
     grid-template-columns: 1fr;

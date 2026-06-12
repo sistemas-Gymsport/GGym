@@ -1092,6 +1092,41 @@ ul {
   margin: 0;
 }
 
+.color-input-native {
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  background-color: transparent;
+  flex-shrink: 0;
+}
+
+.color-input-native::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color-input-native::-webkit-color-swatch {
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+}
+
+.modal-alert {
+  max-width: 420px;
+  text-align: center;
+}
+
+.modal-alert .modal-body {
+  padding: 2.5rem 2rem 1.5rem;
+}
+
+.modal-alert .modal-footer {
+  justify-content: center;
+  border-top: none;
+  padding-top: 0;
+}
+
 @media (max-width: 992px) {
   .hero {
     grid-template-columns: 1fr;

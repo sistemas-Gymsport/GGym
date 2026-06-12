@@ -154,6 +154,8 @@ export default function AdminDashboard() {
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
   const [editingLead, setEditingLead] = useState(null);
 
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -225,8 +227,15 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleResetColors = async () => {
-    if (!window.confirm('¿Deseas restablecer todos los colores a los valores por defecto originales?')) return;
+  const handleColorChange = (key, value) => {
+    setCmsData(prev => ({
+      ...prev,
+      brandSettings: { ...prev.brandSettings, [key]: value }
+    }));
+  };
+
+  const confirmResetColors = async () => {
+    setShowResetConfirm(false);
     setSavingStatus('restableciendo colores...');
     try {
       await Promise.all(
@@ -563,7 +572,7 @@ export default function AdminDashboard() {
             <div className="admin-card-header">
               <h3>Ajustes de Identidad Visual</h3>
               <p style={{ color: 'var(--text-charcoal)', fontSize: '0.9rem', marginTop: '0.5rem' }}>
-                Edita los colores y textos. Los cambios se guardan al hacer clic fuera del campo y se reflejan al instante.
+                Haz clic en el cuadro de color para abrir la paleta. Los cambios se guardan al hacer clic fuera del campo.
               </p>
             </div>
             <div className="admin-grid">
@@ -591,10 +600,17 @@ export default function AdminDashboard() {
                       { key: 'borderColor', label: 'Líneas y Bordes', default: defaultColors.borderColor }
                     ].map(color => (
                       <div key={color.key} className="color-picker-wrapper">
-                        <div className="color-preview" style={{ backgroundColor: cmsData.brandSettings[color.key] || color.default }}></div>
+                        <input
+                          type="color"
+                          className="color-input-native"
+                          value={cmsData.brandSettings[color.key] || color.default}
+                          onChange={(e) => handleColorChange(color.key, e.target.value)}
+                          onBlur={(e) => handleUpdate('brand_settings', color.key, e.target.value, cmsData.brandSettings.id)}
+                        />
                         <input 
                           type="text" 
-                          defaultValue={cmsData.brandSettings[color.key] || color.default} 
+                          value={cmsData.brandSettings[color.key] || color.default} 
+                          onChange={(e) => handleColorChange(color.key, e.target.value)}
                           onBlur={(e) => handleUpdate('brand_settings', color.key, e.target.value, cmsData.brandSettings.id)} 
                           className="form-input" 
                           placeholder={color.default}
@@ -603,7 +619,7 @@ export default function AdminDashboard() {
                     ))}
                     
                   </div>
-                  <button onClick={handleResetColors} className="btn btn-outline" style={{ marginTop: '1.5rem', width: '100%' }}>
+                  <button onClick={() => setShowResetConfirm(true)} className="btn btn-outline" style={{ marginTop: '1.5rem', width: '100%' }}>
                     Restablecer Colores por Defecto
                   </button>
                 </div>
@@ -730,6 +746,34 @@ export default function AdminDashboard() {
           </div>
         )}
       </main>
+
+      {showResetConfirm && (
+        <div className="modal-overlay">
+          <div className="modal-content modal-alert">
+            <div className="modal-body">
+              <div style={{ marginBottom: '1.5rem', color: 'var(--brand-coral)' }}>
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+              </div>
+              <h3>¿Restablecer Colores?</h3>
+              <p style={{ color: 'var(--text-charcoal)', marginTop: '0.5rem' }}>
+                Esta acción restaurará la paleta de colores a sus valores originales. No podrás deshacer este cambio.
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button onClick={() => setShowResetConfirm(false)} className="btn btn-secondary">
+                Cancelar
+              </button>
+              <button onClick={confirmResetColors} className="btn btn-primary">
+                Sí, Restablecer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isModalOpen && editingLoc && (
         <div className="modal-overlay">

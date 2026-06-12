@@ -526,46 +526,10 @@ export default function AdminDashboard() {
                 <h3>Total Sucursales</h3>
                 <p>{cmsData.locations.length}</p>
               </div>
-              <div className="stat-card">
-                <h3>Total Prospectos</h3>
-                <p>{leads.length}</p>
-              </div>
-              <div className="stat-card">
-                <h3>Último Prospecto Registrado</h3>
-                <p style={{ fontSize: '1.5rem', marginTop: '1rem' }}>{leads[0]?.name || 'Sin registros'}</p>
-              </div>
+              
             </div>
             
-            <div className="admin-card">
-              <div className="admin-card-header">
-                <h3>Prospectos Recientes</h3>
-              </div>
-              <div className="data-table-wrapper" style={{ border: 'none' }}>
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Nombre</th>
-                      <th>Teléfono</th>
-                      <th>Sucursal</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {leads.slice(0, 5).map(lead => (
-                      <tr key={lead.id}>
-                        <td><strong>{lead.name}</strong></td>
-                        <td>{lead.phone}</td>
-                        <td>{lead.location}</td>
-                      </tr>
-                    ))}
-                    {leads.length === 0 && (
-                      <tr>
-                        <td colSpan="3" style={{ textAlign: 'center' }}>No hay prospectos recientes.</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            
           </div>
         )}
 

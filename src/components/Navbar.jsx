@@ -10,7 +10,11 @@ export default function Navbar({ brandSettings }) {
     <nav className="navbar">
       <div className="container">
         <Link to="/" className="nav-logo">
-          {firstPart} <span>{secondPart}</span>
+          {brandSettings?.logoUrl ? (
+            <img src={brandSettings.logoUrl} alt={brandName} className="nav-logo-img" />
+          ) : (
+            <>{firstPart} <span>{secondPart}</span></>
+          )}
         </Link>
         <div className="nav-links">
           <Link to="/">Inicio</Link>

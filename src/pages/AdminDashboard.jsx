@@ -478,7 +478,11 @@ export default function AdminDashboard() {
     <div className="admin-layout">
       <aside className="admin-sidebar">
         <div className="admin-sidebar-header">
-          <h1>GEO <span>GYM</span></h1>
+          {cmsData.brandSettings?.logoUrl ? (
+            <img src={cmsData.brandSettings.logoUrl} alt="Logo" className="admin-logo-img" />
+          ) : (
+            <h1>GEO <span>GYM</span></h1>
+          )}
           <p>CMS Control de Ubicaciones</p>
         </div>
         <nav className="admin-nav">
@@ -832,6 +836,19 @@ export default function AdminDashboard() {
                       className="form-input" 
                       rows={8}
                     ></textarea>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Código Embed de Google Maps (Iframe)</label>
+                    <input 
+                      type="text" 
+                      defaultValue={editingLoc.mapEmbedCode || ''} 
+                      onBlur={(e) => {
+                        handleUpdate('locations', 'mapEmbedCode', e.target.value, editingLoc.id);
+                        setEditingLoc({...editingLoc, mapEmbedCode: e.target.value});
+                      }} 
+                      className="form-input" 
+                      placeholder='<iframe src="https://www.google.com/maps/embed?..." ></iframe>'
+                    />
                   </div>
                 </div>
                 <div className="admin-stack">

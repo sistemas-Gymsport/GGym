@@ -80,6 +80,13 @@ export default function LocationCard({ location }) {
         <div className="location-info-grid">
           {formatText(location.amenities)}
         </div>
+
+        {location.mapEmbedCode && (
+          <div 
+            className="location-map-container"
+            dangerouslySetInnerHTML={{ __html: location.mapEmbedCode }}
+          />
+        )}
         
         <Link to="/contacto" className="btn btn-primary btn-block cta-button">
           Inscribirme en {location.name}

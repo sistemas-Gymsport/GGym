@@ -7,10 +7,20 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// AUMENTAMOS EL LÍMITE DE PESO PARA EVITAR EL ERROR 413
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+  },
+};
+
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       const { file, entityId, targetField, tableName } = req.body;
+      
       const uploadResponse = await cloudinary.uploader.upload(file, {
         folder: 'gym_cms_assets',
       });
@@ -21,6 +31,7 @@ export default async function handler(req, res) {
       
       return res.status(200).json({ success: true, url: imageUrl, data: dbResult.rows[0] });
     } catch (error) {
+      console.error("Error en Cloudinary:", error);
       return res.status(500).json({ success: false, error: error.message });
     }
   }

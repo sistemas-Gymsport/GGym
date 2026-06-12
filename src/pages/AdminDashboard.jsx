@@ -64,12 +64,12 @@ const ImageDropzone = ({ currentImage, onUpload, onRemove, placeholderText }) =>
       onDrop={handleDrop}
     >
       <div className="image-preview-container">
-        <img src={preview || currentImage || '/placeholder.jpg'} alt="Preview" />
+        <img src={preview || currentImage || '/placeholder.jpg'} alt="Vista Previa" />
       </div>
       
       {!pendingFile ? (
         <div className="upload-controls">
-          <p>{placeholderText || 'Arrastra tu imagen aquí o'}</p>
+          <p>{placeholderText || 'Arrastra tu nueva imagen aquí'}</p>
           <input 
             type="file" 
             id={inputId} 
@@ -87,9 +87,13 @@ const ImageDropzone = ({ currentImage, onUpload, onRemove, placeholderText }) =>
           )}
         </div>
       ) : (
-        <div className="action-controls">
-          <button onClick={handleSave} className="btn btn-primary">Guardar Cambios</button>
-          <button onClick={handleDiscard} className="btn btn-secondary">Descartar</button>
+        <div className="action-controls" style={{ display: 'flex', gap: '1rem', marginTop: '1rem', width: '100%' }}>
+          <button onClick={handleSave} className="btn btn-primary" style={{ flex: 1 }}>
+            Guardar Cambios
+          </button>
+          <button onClick={handleDiscard} className="btn btn-secondary" style={{ flex: 1 }}>
+            Descartar
+          </button>
         </div>
       )}
     </div>
@@ -138,7 +142,7 @@ export default function AdminDashboard() {
   };
 
   const handleUpdate = async (tableName, targetField, value, entityId) => {
-    setSavingStatus('guardando');
+    setSavingStatus('guardando texto...');
     try {
       const response = await fetch('/api/cms', {
         method: 'POST',
@@ -166,7 +170,7 @@ export default function AdminDashboard() {
   };
 
   const handleAddLocation = async () => {
-    setSavingStatus('creando');
+    setSavingStatus('creando...');
     try {
       const response = await fetch('/api/cms', {
         method: 'POST',
@@ -195,7 +199,7 @@ export default function AdminDashboard() {
   const handleDeleteLocation = async (id) => {
     if (!window.confirm('¿Estás seguro de eliminar esta sucursal?')) return;
     if (!window.confirm('Esta acción es irreversible. ¿Confirmas la eliminación definitiva?')) return;
-    setSavingStatus('eliminando');
+    setSavingStatus('eliminando...');
     try {
       const response = await fetch('/api/cms', {
         method: 'POST',
@@ -221,7 +225,7 @@ export default function AdminDashboard() {
   };
 
   const handleImageUploadConfirm = async (dataUrl, entityId, targetField, tableName) => {
-    setSavingStatus('subiendo_imagen');
+    setSavingStatus('subiendo a Cloudinary...');
     try {
       const response = await fetch('/api/media', {
         method: 'POST',
@@ -240,14 +244,15 @@ export default function AdminDashboard() {
               ? prev.locations.map(loc => loc.id === entityId ? { ...loc, [targetField]: result.url } : loc)
               : { ...prev[tableName], [targetField]: result.url }
         }));
-        setSavingStatus('imagen_subida');
-        setTimeout(() => setSavingStatus(null), 1500);
+        setSavingStatus('imagen subida');
+        setTimeout(() => setSavingStatus(null), 2000);
       } else {
-        throw new Error('Error subida');
+        throw new Error(result.error || 'Error subida');
       }
     } catch (err) {
-      setSavingStatus('error');
-      setTimeout(() => setSavingStatus(null), 2500);
+      console.error(err);
+      setSavingStatus('error subiendo imagen');
+      setTimeout(() => setSavingStatus(null), 3000);
     }
   };
 
@@ -255,7 +260,7 @@ export default function AdminDashboard() {
     if (!url) return;
     if (!window.confirm('¿Seguro que deseas eliminar esta imagen de forma permanente?')) return;
     
-    setSavingStatus('eliminando_imagen');
+    setSavingStatus('eliminando de Cloudinary...');
     try {
       const parts = url.split('/');
       const filename = parts.pop().split('.')[0];
@@ -306,7 +311,7 @@ export default function AdminDashboard() {
 
   const handleSaveLead = async (e) => {
     e.preventDefault();
-    setSavingStatus('guardando');
+    setSavingStatus('guardando...');
     try {
       const isUpdate = !!editingLead.id;
       const payload = isUpdate
@@ -341,7 +346,7 @@ export default function AdminDashboard() {
     if (!window.confirm('¿Estás seguro de eliminar este prospecto?')) return;
     if (!window.confirm('Esta acción eliminará el registro permanentemente. ¿Confirmar?')) return;
     
-    setSavingStatus('eliminando');
+    setSavingStatus('eliminando...');
     try {
       const response = await fetch('/api/lead', {
         method: 'POST',
@@ -406,8 +411,8 @@ export default function AdminDashboard() {
           <h2>{menuItems.find(i => i.id === activeSection)?.label || ''}</h2>
           <div className="admin-header-actions">
             {savingStatus && (
-              <span className={`status-message ${savingStatus === 'guardado' || savingStatus === 'imagen_subida' ? 'status-success' : 'status-error'}`} style={{ margin: 0, padding: '0.5rem 1rem' }}>
-                {savingStatus.replace('_', ' ').toUpperCase()}
+              <span className={`status-message ${savingStatus.includes('guardado') || savingStatus.includes('subida') ? 'status-success' : 'status-error'}`} style={{ margin: 0, padding: '0.5rem 1rem' }}>
+                {savingStatus.toUpperCase()}
               </span>
             )}
             <button onClick={() => { window.location.reload(); }} className="btn btn-secondary" style={{ padding: '0.5rem 1rem' }}>
@@ -468,6 +473,12 @@ export default function AdminDashboard() {
 
         {activeSection === 'branding' && (
           <div className="admin-card">
+            <div className="admin-card-header">
+              <h3>Ajustes de Identidad Visual</h3>
+              <p style={{ color: 'var(--text-charcoal)', fontSize: '0.9rem', marginTop: '0.5rem' }}>
+                Edita los campos de texto y haz clic fuera de ellos para que se guarden solos.
+              </p>
+            </div>
             <div className="admin-grid">
               <div className="admin-stack">
                 <div className="form-group">
@@ -510,6 +521,9 @@ export default function AdminDashboard() {
 
         {activeSection === 'hero' && (
           <div className="admin-card">
+            <div className="admin-card-header">
+              <h3>Portada Principal (Hero)</h3>
+            </div>
             <div className="admin-grid">
               <div className="admin-stack">
                 <div className="form-group">

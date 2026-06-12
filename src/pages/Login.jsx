@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 export default function Login() {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
@@ -14,15 +14,14 @@ export default function Login() {
     });
   };
 
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth', { // Ruta actualizada
-        method: 'POST', // Método actualizado
+      const response = await fetch('/api/auth', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: credentials.username,
@@ -49,7 +48,6 @@ export default function Login() {
         <h2 className="title-main">
           GEO <span>GYM</span>
         </h2>
-        
       </div>
 
       <div className="login-card">
@@ -95,6 +93,14 @@ export default function Login() {
           >
             {loading ? 'Verificando...' : 'Ingresar al Panel'}
           </button>
+
+          <Link 
+            to="/" 
+            className="btn btn-outline btn-block" 
+            style={{ marginTop: '1rem' }}
+          >
+            Volver al Inicio
+          </Link>
         </form>
       </div>
     </div>

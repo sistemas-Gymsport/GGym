@@ -63,7 +63,6 @@ export default function Home() {
     loadPageData();
   }, []);
 
-  // Aplica los colores dinámicos al cambiar cmsData.brandSettings
   useEffect(() => {
     if (cmsData.brandSettings) {
        document.documentElement.style.setProperty('--brand-coral', cmsData.brandSettings.accentColor);
@@ -92,24 +91,59 @@ export default function Home() {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setStatus({ success: false, error: null, loading: true });
 
+    if (!formData.location) {
+      setStatus({ success: false, error: 'Por favor selecciona una sucursal de interés.', loading: false });
+      return;
+    }
+
     try {
-      const response = await fetch('/api/lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      const result = await response.json();
+      // 1. Encontrar los datos de la sucursal seleccionada
+      const selectedLoc = cmsData.locations.find(loc => loc.name === formData.location);
+      let waNumber = null;
 
-      if (!response.ok) throw new Error(result.error || 'Error al procesar el registro');
+      // 2. Extraer el número de WhatsApp buscando en las amenidades (igual que en la tarjeta)
+      if (selectedLoc && selectedLoc.amenities) {
+        const lines = selectedLoc.amenities.split('\n');
+        for (let line of lines) {
+          if (line.toLowerCase().includes('whatsapp')) {
+            const cleanNumber = line.replace(/\D/g, '');
+            if (cleanNumber) {
+              // Si es un número de 10 dígitos (México), le agregamos el 52
+              waNumber = cleanNumber.length === 10 ? `52${cleanNumber}` : cleanNumber;
+            }
+            break;
+          }
+        }
+      }
 
+      // 3. Fallback: Si no escribiste "WhatsApp:" en las amenidades de esa sucursal, usamos el teléfono principal
+      if (!waNumber) {
+        const fallbackNumber = cmsData.contactSettings.phone.replace(/\D/g, '');
+        waNumber = fallbackNumber.length === 10 ? `52${fallbackNumber}` : fallbackNumber;
+      }
+
+      // 4. Armar el mensaje con los datos del formulario
+      const message = `Hola, quiero agendar mi entrenamiento de prueba gratis. 🏋️‍♂️\n\n*Mis datos son:*\n👤 Nombre: ${formData.name}\n📧 Correo: ${formData.email}\n📞 Teléfono: ${formData.phone}\n📍 Sucursal de interés: ${formData.location}`;
+      const encodedMessage = encodeURIComponent(message);
+
+      // 5. Redirigir a WhatsApp abriendo una nueva pestaña
+      window.open(`https://wa.me/${waNumber}?text=${encodedMessage}`, '_blank');
+
+      // Limpiar formulario y mostrar éxito
       setStatus({ success: true, error: null, loading: false });
       setFormData({ name: '', email: '', phone: '', location: '' });
+      
+      // Ocultar mensaje de éxito después de 5 segundos
+      setTimeout(() => {
+        setStatus(prev => ({ ...prev, success: false }));
+      }, 5000);
+
     } catch (err) {
-      setStatus({ success: false, error: err.message, loading: false });
+      setStatus({ success: false, error: 'Hubo un error al preparar tu solicitud. Intenta de nuevo.', loading: false });
     }
   };
 
@@ -180,6 +214,7 @@ export default function Home() {
                   <input 
                     type="tel" 
                     name="phone" 
+                    required
                     value={formData.phone} 
                     onChange={handleChange} 
                     className="form-input" 
@@ -194,6 +229,7 @@ export default function Home() {
                     value={formData.location} 
                     onChange={handleChange} 
                     className="form-input"
+                    required
                   >
                     <option value="">Selecciona una sucursal</option>
                     {cmsData.locations.map(loc => (
@@ -205,7 +241,7 @@ export default function Home() {
 
               {status.success && (
                 <div className="status-message status-success">
-                  ¡Registro exitoso! Un asesor se comunicará contigo pronto.
+                  ¡Te estamos redirigiendo a WhatsApp de manera segura!
                 </div>
               )}
 
@@ -216,7 +252,7 @@ export default function Home() {
               )}
 
               <button type="submit" disabled={status.loading} className="btn btn-primary btn-block">
-                {status.loading ? 'Enviando...' : 'Solicitar Entrenamiento Gratis'}
+                {status.loading ? 'Redirigiendo...' : 'Solicitar Entrenamiento Gratis (WhatsApp)'}
               </button>
             </form>
           </div>

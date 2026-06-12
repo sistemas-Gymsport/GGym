@@ -189,8 +189,23 @@ export default function AdminDashboard() {
     }
   };
 
+  const getStateKey = (tableName) => {
+    if (tableName === 'brand_settings') return 'brandSettings';
+    if (tableName === 'hero_settings') return 'hero';
+    return tableName;
+  };
+
   const handleUpdate = async (tableName, targetField, value, entityId) => {
     setSavingStatus('guardando texto...');
+    const stateKey = getStateKey(tableName);
+
+    setCmsData(prev => ({
+      ...prev,
+      [stateKey]: stateKey === 'locations'
+        ? prev.locations.map(loc => loc.id === entityId ? { ...loc, [targetField]: value } : loc)
+        : { ...prev[stateKey], [targetField]: value }
+    }));
+
     try {
       const response = await fetch('/api/cms', {
         method: 'POST',
@@ -199,13 +214,6 @@ export default function AdminDashboard() {
       });
       const result = await response.json();
       if (result.success) {
-        setCmsData(prev => ({
-          ...prev,
-          [tableName === 'locations' ? 'locations' : tableName]: 
-            tableName === 'locations' 
-              ? prev.locations.map(loc => loc.id === entityId ? { ...loc, [targetField]: value } : loc)
-              : { ...prev[tableName], [targetField]: value }
-        }));
         setSavingStatus('guardado');
         setTimeout(() => setSavingStatus(null), 1500);
       } else {
@@ -313,15 +321,15 @@ export default function AdminDashboard() {
 
       const result = await response.json();
       if (result.success) {
-        if (tableName === 'locations' && editingLoc && editingLoc.id === entityId) {
+        const stateKey = getStateKey(tableName);
+        if (stateKey === 'locations' && editingLoc && editingLoc.id === entityId) {
           setEditingLoc(prev => ({ ...prev, [targetField]: result.url }));
         }
         setCmsData(prev => ({
           ...prev,
-          [tableName === 'locations' ? 'locations' : tableName]: 
-            tableName === 'locations' 
-              ? prev.locations.map(loc => loc.id === entityId ? { ...loc, [targetField]: result.url } : loc)
-              : { ...prev[tableName], [targetField]: result.url }
+          [stateKey]: stateKey === 'locations'
+            ? prev.locations.map(loc => loc.id === entityId ? { ...loc, [targetField]: result.url } : loc)
+            : { ...prev[stateKey], [targetField]: result.url }
         }));
         setSavingStatus('imagen subida');
         setTimeout(() => setSavingStatus(null), 2000);
@@ -353,15 +361,15 @@ export default function AdminDashboard() {
       });
       const result = await response.json();
       if (result.success) {
-        if (tableName === 'locations' && editingLoc && editingLoc.id === entityId) {
+        const stateKey = getStateKey(tableName);
+        if (stateKey === 'locations' && editingLoc && editingLoc.id === entityId) {
           setEditingLoc(prev => ({ ...prev, [targetField]: '' }));
         }
         setCmsData(prev => ({
           ...prev,
-          [tableName === 'locations' ? 'locations' : tableName]: 
-            tableName === 'locations' 
-              ? prev.locations.map(loc => loc.id === entityId ? { ...loc, [targetField]: '' } : loc)
-              : { ...prev[tableName], [targetField]: '' }
+          [stateKey]: stateKey === 'locations'
+            ? prev.locations.map(loc => loc.id === entityId ? { ...loc, [targetField]: '' } : loc)
+            : { ...prev[stateKey], [targetField]: '' }
         }));
         setSavingStatus('guardado');
         setTimeout(() => setSavingStatus(null), 1500);
@@ -555,7 +563,7 @@ export default function AdminDashboard() {
             <div className="admin-card-header">
               <h3>Ajustes de Identidad Visual</h3>
               <p style={{ color: 'var(--text-charcoal)', fontSize: '0.9rem', marginTop: '0.5rem' }}>
-                Edita los colores y textos. Los cambios se guardan al hacer clic fuera del campo.
+                Edita los colores y textos. Los cambios se guardan al hacer clic fuera del campo y se reflejan al instante.
               </p>
             </div>
             <div className="admin-grid">

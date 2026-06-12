@@ -101,18 +101,15 @@ export default function Home() {
     }
 
     try {
-      // 1. Encontrar los datos de la sucursal seleccionada
       const selectedLoc = cmsData.locations.find(loc => loc.name === formData.location);
       let waNumber = null;
 
-      // 2. Extraer el número de WhatsApp buscando en las amenidades (igual que en la tarjeta)
       if (selectedLoc && selectedLoc.amenities) {
         const lines = selectedLoc.amenities.split('\n');
         for (let line of lines) {
           if (line.toLowerCase().includes('whatsapp')) {
             const cleanNumber = line.replace(/\D/g, '');
             if (cleanNumber) {
-              // Si es un número de 10 dígitos (México), le agregamos el 52
               waNumber = cleanNumber.length === 10 ? `52${cleanNumber}` : cleanNumber;
             }
             break;
@@ -120,24 +117,25 @@ export default function Home() {
         }
       }
 
-      // 3. Fallback: Si no escribiste "WhatsApp:" en las amenidades de esa sucursal, usamos el teléfono principal
       if (!waNumber) {
         const fallbackNumber = cmsData.contactSettings.phone.replace(/\D/g, '');
         waNumber = fallbackNumber.length === 10 ? `52${fallbackNumber}` : fallbackNumber;
       }
 
-      // 4. Armar el mensaje con los datos del formulario
-      const message = `Hola, quiero agendar mi entrenamiento de prueba gratis. 🏋️‍♂️\n\n*Mis datos son:*\n👤 Nombre: ${formData.name}\n📧 Correo: ${formData.email}\n📞 Teléfono: ${formData.phone}\n📍 Sucursal de interés: ${formData.location}`;
+      const message = `Solicitud de entrenamiento de prueba.
+Datos del interesado:
+- Nombre: ${formData.name}
+- Correo: ${formData.email}
+- Teléfono: ${formData.phone}
+- Sucursal de interés: ${formData.location}
+
+Quedo a la espera de su informacion más a detalle.`;
       const encodedMessage = encodeURIComponent(message);
 
-      // 5. Redirigir a WhatsApp abriendo una nueva pestaña
       window.open(`https://wa.me/${waNumber}?text=${encodedMessage}`, '_blank');
 
-      // Limpiar formulario y mostrar éxito
       setStatus({ success: true, error: null, loading: false });
       setFormData({ name: '', email: '', phone: '', location: '' });
-      
-      // Ocultar mensaje de éxito después de 5 segundos
       setTimeout(() => {
         setStatus(prev => ({ ...prev, success: false }));
       }, 5000);

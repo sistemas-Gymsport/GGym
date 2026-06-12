@@ -293,82 +293,174 @@ ul {
   }
 }
 
-.location-card {
+.location-card-modern {
   display: grid;
-  grid-template-columns: 2fr 3fr;
+  grid-template-columns: 1fr 1.2fr;
   background-color: var(--bg-white);
-  border-radius: 1rem;
+  border-radius: 1.5rem;
   overflow: hidden;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.08);
   border: 1px solid var(--border-color);
+  transition: transform 0.3s ease;
 }
 
-.location-image img {
+.location-card-modern:hover {
+  transform: translateY(-5px);
+}
+
+.location-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+}
+
+.location-image-wrapper img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  min-height: 300px;
 }
 
-.location-content {
+.location-badge {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(5px);
+  padding: 0.5rem 1rem;
+  border-radius: 100px;
+  font-weight: 700;
+  color: var(--brand-coral);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: var(--shadow-md);
+}
+
+.location-badge svg {
+  width: 16px;
+  height: 16px;
+}
+
+.location-content-modern {
   padding: 3rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
 }
 
-.location-content h3 {
-  font-size: 2rem;
+.location-header {
+  margin-bottom: 2rem;
+}
+
+.location-header h3 {
+  font-size: 2.25rem;
   color: var(--text-black);
+  line-height: 1.1;
   margin-bottom: 0.5rem;
 }
 
-.location-content p {
+.address-text {
   color: var(--text-charcoal);
-  margin-bottom: 2rem;
-}
-
-.location-price {
-  margin-bottom: 2rem;
-}
-
-.location-price h4 {
-  color: var(--brand-coral);
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
-}
-
-.price-tag {
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--text-black);
+  font-weight: 500;
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0.8;
 }
 
-.location-amenities {
+.price-highlight-box {
+  background: linear-gradient(145deg, #fff5f5, #ffeaea);
+  border: 1px solid rgba(246, 72, 81, 0.2);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  border-left: 4px solid var(--brand-coral);
+}
+
+.price-subtitle {
+  color: var(--brand-coral);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  margin-bottom: 0.25rem;
+}
+
+.price-main {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--text-black);
+  line-height: 1;
+}
+
+.location-info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   margin-bottom: 2.5rem;
+  flex: 1;
 }
 
-.text-block {
-  margin-bottom: 0.5rem;
-  font-weight: 600;
+.location-spacer {
+  height: 1rem;
+}
+
+.location-subheader {
+  color: var(--brand-coral);
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-top: 1rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.location-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px dashed var(--border-color);
+}
+
+.detail-label {
+  font-weight: 700;
   color: var(--text-black);
 }
 
-.list-item {
-  position: relative;
-  padding-left: 1.5rem;
-  margin-bottom: 0.5rem;
+.detail-value {
+  font-weight: 500;
+  color: var(--text-charcoal);
+  text-align: right;
+}
+
+.location-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+}
+
+.check-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--brand-coral);
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+}
+
+.location-list-item span {
+  font-weight: 500;
   color: var(--text-charcoal);
 }
 
-.list-item::before {
-  content: "•";
-  position: absolute;
-  left: 0;
-  color: var(--brand-coral);
-  font-weight: bold;
+.cta-button {
+  margin-top: auto;
+  padding: 1.25rem;
+  font-size: 1.15rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .badge-container {
@@ -913,8 +1005,14 @@ ul {
   .nav-links {
     display: none;
   }
-  .location-card {
+  .location-card-modern {
     grid-template-columns: 1fr;
+  }
+  .location-image-wrapper {
+    min-height: 250px;
+  }
+  .location-content-modern {
+    padding: 2rem;
   }
   .footer-grid {
     grid-template-columns: 1fr;

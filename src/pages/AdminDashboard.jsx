@@ -482,7 +482,6 @@ export default function AdminDashboard() {
           ) : (
             <h1>GEO <span>GYM</span></h1>
           )}
-          <p>CMS Control de Ubicaciones</p>
         </div>
         <nav className="admin-nav">
           {menuItems.map(item => (

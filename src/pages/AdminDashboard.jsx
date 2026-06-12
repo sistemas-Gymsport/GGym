@@ -468,8 +468,7 @@ export default function AdminDashboard() {
     { id: 'dashboard', label: 'Resumen / Dashboard' },
     { id: 'branding', label: 'Identidad y Logo' },
     { id: 'hero', label: 'Sección Hero' },
-    { id: 'locations', label: 'Sucursales y Mapas' },
-    { id: 'leads', label: 'Prospectos / Leads' }
+    { id: 'locations', label: 'Sucursales y Mapas' }
   ];
 
   if (loading || !cmsData) return <div style={{ padding: '5rem', textAlign: 'center', fontSize: '1.5rem', fontWeight: 'bold' }}>Cargando Panel GEO GYM...</div>;

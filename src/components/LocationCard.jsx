@@ -112,7 +112,7 @@ export default function LocationCard({ location }) {
         )}
         
         <Link to="/contacto" className="btn btn-primary btn-block cta-button">
-          Inscribirme en {location.name}
+          Solicitar en {location.name}
         </Link>
       </div>
     </div>

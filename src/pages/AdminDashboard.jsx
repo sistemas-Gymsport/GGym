@@ -1,8 +1,103 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const ImageDropzone = ({ currentImage, onUpload, onRemove, placeholderText }) => {
+  const [dragActive, setDragActive] = useState(false);
+  const [preview, setPreview] = useState(null);
+  const [pendingFile, setPendingFile] = useState(null);
+  const inputId = useId();
+
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleChange = (e) => {
+    e.preventDefault();
+    if (e.target.files && e.target.files[0]) {
+      handleFile(e.target.files[0]);
+    }
+  };
+
+  const handleFile = (file) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = () => {
+      setPreview(reader.result);
+      setPendingFile(reader.result);
+    };
+  };
+
+  const handleSave = () => {
+    if (pendingFile) {
+      onUpload(pendingFile);
+    }
+    setPendingFile(null);
+    setPreview(null);
+  };
+
+  const handleDiscard = () => {
+    setPendingFile(null);
+    setPreview(null);
+  };
+
+  return (
+    <div 
+      className={`drag-drop-zone ${dragActive ? 'active' : ''}`} 
+      onDragEnter={handleDrag} 
+      onDragLeave={handleDrag} 
+      onDragOver={handleDrag} 
+      onDrop={handleDrop}
+    >
+      <div className="image-preview-container">
+        <img src={preview || currentImage || '/placeholder.jpg'} alt="Preview" />
+      </div>
+      
+      {!pendingFile ? (
+        <div className="upload-controls">
+          <p>{placeholderText || 'Arrastra tu imagen aquí o'}</p>
+          <input 
+            type="file" 
+            id={inputId} 
+            onChange={handleChange} 
+            accept="image/*"
+            style={{ display: 'none' }}
+          />
+          <label htmlFor={inputId} className="btn btn-outline" style={{ cursor: 'pointer' }}>
+            Seleccionar archivo
+          </label>
+          {currentImage && (
+            <button onClick={onRemove} className="btn-delete" style={{ marginTop: '0.5rem' }}>
+              Eliminar Imagen Actual
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="action-controls">
+          <button onClick={handleSave} className="btn btn-primary">Guardar Cambios</button>
+          <button onClick={handleDiscard} className="btn btn-secondary">Descartar</button>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function AdminDashboard() {
-  const [activeSection, setActiveSection] = useState('branding');
+  const [activeSection, setActiveSection] = useState('dashboard');
   const [cmsData, setCmsData] = useState({
     brandSettings: { id: 1, brandName: '', logoUrl: '', accentColor: '#f64851' },
     hero: { id: 1, title: '', subtitle: '', imageUrl: '' },
@@ -125,45 +220,41 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleImageUpload = async (e, entityId, targetField, tableName) => {
-    if (!e.target.files || e.target.files.length === 0) return;
+  const handleImageUploadConfirm = async (dataUrl, entityId, targetField, tableName) => {
     setSavingStatus('subiendo_imagen');
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onloadend = async () => {
-      try {
-        const response = await fetch('/api/media', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ file: reader.result, entityId, targetField, tableName })
-        });
-        const result = await response.json();
-        if (result.success) {
-          if (tableName === 'locations' && editingLoc && editingLoc.id === entityId) {
-            setEditingLoc(prev => ({ ...prev, [targetField]: result.url }));
-          }
-          setCmsData(prev => ({
-            ...prev,
-            [tableName === 'locations' ? 'locations' : tableName]: 
-              tableName === 'locations' 
-                ? prev.locations.map(loc => loc.id === entityId ? { ...loc, [targetField]: result.url } : loc)
-                : { ...prev[tableName], [targetField]: result.url }
-          }));
-          setSavingStatus('imagen_subida');
-          setTimeout(() => setSavingStatus(null), 1500);
-        } else {
-          throw new Error('Error subida');
+    try {
+      const response = await fetch('/api/media', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ file: dataUrl, entityId, targetField, tableName })
+      });
+      const result = await response.json();
+      if (result.success) {
+        if (tableName === 'locations' && editingLoc && editingLoc.id === entityId) {
+          setEditingLoc(prev => ({ ...prev, [targetField]: result.url }));
         }
-      } catch (err) {
-        setSavingStatus('error');
-        setTimeout(() => setSavingStatus(null), 2500);
+        setCmsData(prev => ({
+          ...prev,
+          [tableName === 'locations' ? 'locations' : tableName]: 
+            tableName === 'locations' 
+              ? prev.locations.map(loc => loc.id === entityId ? { ...loc, [targetField]: result.url } : loc)
+              : { ...prev[tableName], [targetField]: result.url }
+        }));
+        setSavingStatus('imagen_subida');
+        setTimeout(() => setSavingStatus(null), 1500);
+      } else {
+        throw new Error('Error subida');
       }
-    };
+    } catch (err) {
+      setSavingStatus('error');
+      setTimeout(() => setSavingStatus(null), 2500);
+    }
   };
 
   const handleDeleteImage = async (url, entityId, targetField, tableName) => {
     if (!url) return;
+    if (!window.confirm('¿Seguro que deseas eliminar esta imagen de forma permanente?')) return;
+    
     setSavingStatus('eliminando_imagen');
     try {
       const parts = url.split('/');
@@ -248,7 +339,7 @@ export default function AdminDashboard() {
 
   const handleDeleteLead = async (id) => {
     if (!window.confirm('¿Estás seguro de eliminar este prospecto?')) return;
-    if (!window.confirm('Esta acción eliminará el registro de la base de datos permanentemente. ¿Confirmar?')) return;
+    if (!window.confirm('Esta acción eliminará el registro permanentemente. ¿Confirmar?')) return;
     
     setSavingStatus('eliminando');
     try {
@@ -273,6 +364,7 @@ export default function AdminDashboard() {
   };
 
   const menuItems = [
+    { id: 'dashboard', label: 'Resumen / Dashboard' },
     { id: 'branding', label: 'Identidad y Logo' },
     { id: 'hero', label: 'Sección Hero' },
     { id: 'locations', label: 'Sucursales y Mapas' },
@@ -324,6 +416,56 @@ export default function AdminDashboard() {
           </div>
         </header>
 
+        {activeSection === 'dashboard' && (
+          <div>
+            <div className="dashboard-stats">
+              <div className="stat-card">
+                <h3>Total Sucursales</h3>
+                <p>{cmsData.locations.length}</p>
+              </div>
+              <div className="stat-card">
+                <h3>Total Prospectos</h3>
+                <p>{leads.length}</p>
+              </div>
+              <div className="stat-card">
+                <h3>Último Prospecto Registrado</h3>
+                <p style={{ fontSize: '1.5rem', marginTop: '1rem' }}>{leads[0]?.name || 'Sin registros'}</p>
+              </div>
+            </div>
+            
+            <div className="admin-card">
+              <div className="admin-card-header">
+                <h3>Prospectos Recientes</h3>
+              </div>
+              <div className="data-table-wrapper" style={{ border: 'none' }}>
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Teléfono</th>
+                      <th>Sucursal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {leads.slice(0, 5).map(lead => (
+                      <tr key={lead.id}>
+                        <td><strong>{lead.name}</strong></td>
+                        <td>{lead.phone}</td>
+                        <td>{lead.location}</td>
+                      </tr>
+                    ))}
+                    {leads.length === 0 && (
+                      <tr>
+                        <td colSpan="3" style={{ textAlign: 'center' }}>No hay prospectos recientes.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeSection === 'branding' && (
           <div className="admin-card">
             <div className="admin-grid">
@@ -354,18 +496,12 @@ export default function AdminDashboard() {
               <div className="admin-stack">
                 <div className="form-group">
                   <label className="form-label">Logo GEO GYM</label>
-                  <div className="image-preview-box">
-                    <img src={cmsData.brandSettings.logoUrl || '/logo-placeholder.png'} alt="Logo CMS" />
-                    <input 
-                      type="file" 
-                      onChange={(e) => handleImageUpload(e, cmsData.brandSettings.id, 'logoUrl', 'brand_settings')} 
-                    />
-                    {cmsData.brandSettings.logoUrl && (
-                      <button onClick={() => handleDeleteImage(cmsData.brandSettings.logoUrl, cmsData.brandSettings.id, 'logoUrl', 'brand_settings')} className="btn-delete">
-                        Eliminar Imagen
-                      </button>
-                    )}
-                  </div>
+                  <ImageDropzone 
+                    currentImage={cmsData.brandSettings.logoUrl}
+                    onUpload={(dataUrl) => handleImageUploadConfirm(dataUrl, cmsData.brandSettings.id, 'logoUrl', 'brand_settings')}
+                    onRemove={() => handleDeleteImage(cmsData.brandSettings.logoUrl, cmsData.brandSettings.id, 'logoUrl', 'brand_settings')}
+                    placeholderText="Arrastra el nuevo logo aquí"
+                  />
                 </div>
               </div>
             </div>
@@ -399,18 +535,12 @@ export default function AdminDashboard() {
               <div className="admin-stack">
                 <div className="form-group">
                   <label className="form-label">Imagen Hero Principal</label>
-                  <div className="image-preview-box">
-                    <img src={cmsData.hero.imageUrl || '/hero-placeholder.jpg'} alt="Hero CMS" />
-                    <input 
-                      type="file" 
-                      onChange={(e) => handleImageUpload(e, cmsData.hero.id, 'imageUrl', 'hero_settings')} 
-                    />
-                    {cmsData.hero.imageUrl && (
-                      <button onClick={() => handleDeleteImage(cmsData.hero.imageUrl, cmsData.hero.id, 'imageUrl', 'hero_settings')} className="btn-delete">
-                        Eliminar Imagen
-                      </button>
-                    )}
-                  </div>
+                  <ImageDropzone 
+                    currentImage={cmsData.hero.imageUrl}
+                    onUpload={(dataUrl) => handleImageUploadConfirm(dataUrl, cmsData.hero.id, 'imageUrl', 'hero_settings')}
+                    onRemove={() => handleDeleteImage(cmsData.hero.imageUrl, cmsData.hero.id, 'imageUrl', 'hero_settings')}
+                    placeholderText="Arrastra la imagen Hero aquí"
+                  />
                 </div>
               </div>
             </div>
@@ -433,7 +563,7 @@ export default function AdminDashboard() {
                   <p>{loc.address}</p>
                   <div className="location-item-actions">
                     <button onClick={() => openLocationModal(loc)} className="btn-edit" style={{ flex: 1 }}>
-                      Editar Datos
+                      Editar Datos / Imagen
                     </button>
                   </div>
                 </div>
@@ -529,7 +659,7 @@ export default function AdminDashboard() {
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Amenidades y Descripción (Usa saltos de línea y viñetas •)</label>
+                    <label className="form-label">Amenidades y Descripción</label>
                     <textarea 
                       defaultValue={editingLoc.amenities} 
                       onBlur={(e) => {
@@ -544,18 +674,12 @@ export default function AdminDashboard() {
                 <div className="admin-stack">
                   <div className="form-group">
                     <label className="form-label">Imagen de Sucursal</label>
-                    <div className="image-preview-box">
-                      <img src={editingLoc.imageUrl || '/location-placeholder.jpg'} alt="Preview" />
-                      <input 
-                        type="file" 
-                        onChange={(e) => handleImageUpload(e, editingLoc.id, 'imageUrl', 'locations')} 
-                      />
-                      {editingLoc.imageUrl && (
-                        <button onClick={() => handleDeleteImage(editingLoc.imageUrl, editingLoc.id, 'imageUrl', 'locations')} className="btn-delete">
-                          Eliminar Imagen
-                        </button>
-                      )}
-                    </div>
+                    <ImageDropzone 
+                      currentImage={editingLoc.imageUrl}
+                      onUpload={(dataUrl) => handleImageUploadConfirm(dataUrl, editingLoc.id, 'imageUrl', 'locations')}
+                      onRemove={() => handleDeleteImage(editingLoc.imageUrl, editingLoc.id, 'imageUrl', 'locations')}
+                      placeholderText="Arrastra la foto de la sucursal aquí"
+                    />
                   </div>
                 </div>
               </div>

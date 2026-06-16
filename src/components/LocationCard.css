@@ -1,43 +1,56 @@
 .location-card-modern {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   background-color: var(--bg-white);
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   border: 1px solid var(--border-color);
-  max-width: 800px;
+  max-width: 1100px;
   margin: 0 auto;
   width: 100%;
 }
+
 .location-image-wrapper {
-  width: 100%;
+  width: 45%;
+  flex-shrink: 0;
   background-color: var(--bg-cremita);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
 .location-image-wrapper img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
   object-fit: contain;
 }
+
 .location-badge {
   display: none;
 }
+
 .location-content-modern {
-  padding: 1.5rem;
+  width: 55%;
+  padding: 2.5rem;
   display: flex;
   flex-direction: column;
+  justify-content: center;
 }
+
 .location-header {
   margin-bottom: 1rem;
 }
+
 .location-header h3 {
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   color: var(--text-black);
   line-height: 1.2;
   margin-bottom: 0.25rem;
   font-weight: 800;
 }
+
 .address-text {
   color: var(--text-charcoal);
   font-weight: 500;
@@ -46,6 +59,7 @@
   align-items: center;
   gap: 0.4rem;
 }
+
 .price-highlight-box {
   background: #fff5f5;
   border: 1px solid var(--brand-coral);
@@ -55,6 +69,7 @@
   display: flex;
   flex-direction: column;
 }
+
 .price-subtitle {
   color: var(--brand-coral);
   font-weight: 800;
@@ -63,27 +78,32 @@
   letter-spacing: 0.5px;
   margin-bottom: 0.2rem;
 }
+
 .price-main {
   font-size: 1.25rem;
   font-weight: 800;
   color: var(--text-black);
   line-height: 1;
 }
+
 .location-bottom-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 1.5rem;
   align-items: stretch;
   margin-bottom: 0;
 }
+
 .location-info-grid {
   display: flex;
   flex-direction: column;
   gap: 0;
 }
+
 .location-spacer {
   height: 0.5rem;
 }
+
 .location-subheader {
   color: var(--brand-coral);
   font-size: 0.85rem;
@@ -92,6 +112,7 @@
   padding-bottom: 0.25rem;
   border-bottom: 1px solid var(--border-color);
 }
+
 .location-detail-row {
   display: flex;
   justify-content: space-between;
@@ -99,19 +120,22 @@
   padding: 0.75rem 0;
   border-bottom: 2px dashed var(--border-color);
 }
+
 .detail-label {
   font-weight: 800;
   color: var(--text-black);
   font-size: 0.8rem;
-  width: 35%;
+  width: 40%;
 }
+
 .detail-value {
   font-weight: 500;
   color: var(--text-charcoal);
   font-size: 0.8rem;
-  width: 60%;
+  width: 55%;
   text-align: left;
 }
+
 .location-list-item {
   display: flex;
   align-items: flex-start;
@@ -119,6 +143,7 @@
   padding: 0.2rem 0;
   font-size: 0.85rem;
 }
+
 .check-icon {
   width: 14px;
   height: 14px;
@@ -126,29 +151,34 @@
   flex-shrink: 0;
   margin-top: 0.15rem;
 }
+
 .location-map-container {
   border-radius: 4px;
   overflow: hidden;
   border: 1px solid var(--border-color);
-  min-height: 200px;
+  min-height: 250px;
   height: 100%;
 }
+
 .location-map-container iframe {
   width: 100%;
   height: 100%;
   border: none;
 }
+
 .wa-row {
   display: flex;
   align-items: center;
   margin-top: 1rem;
   justify-content: space-between;
 }
+
 .wa-label {
   font-size: 0.85rem;
   font-weight: 800;
   color: var(--text-black);
 }
+
 .wa-link-button {
   display: inline-flex;
   align-items: center;
@@ -161,13 +191,16 @@
   font-size: 0.85rem;
   text-decoration: none;
 }
+
 .wa-link-button:hover {
   background-color: #20bc5a;
 }
+
 .wa-icon {
   width: 16px;
   height: 16px;
 }
+
 .cta-button {
   margin-top: 1.5rem;
   padding: 1rem;
@@ -187,12 +220,27 @@
   border: none;
   cursor: pointer;
 }
+
 .cta-button:hover {
   background-color: #d93d45;
 }
+
+@media (max-width: 992px) {
+  .location-card-modern {
+    flex-direction: column;
+    max-width: 800px;
+  }
+  .location-image-wrapper {
+    width: 100%;
+  }
+  .location-content-modern {
+    width: 100%;
+    padding: 1.5rem;
+  }
+}
+
 @media (max-width: 768px) {
   .location-bottom-grid {
-    grid-template-columns: 1fr;
     gap: 1.5rem;
   }
   .location-map-container {

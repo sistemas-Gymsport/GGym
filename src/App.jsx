@@ -17,6 +17,7 @@ export default function App() {
         <Route path="/precios" element={<Home />} />
         <Route path="/contacto" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/admin/footer" element={<FooterSettings />} />
         <Route 
           path="/admin" 
           element={

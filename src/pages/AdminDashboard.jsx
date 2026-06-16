@@ -141,6 +141,7 @@ export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [cmsData, setCmsData] = useState({
     brandSettings: { id: 1, brandName: '', logoUrl: '', accentColor: '#f64851', bgCremita: '#ebe8e2', bgWhite: '#ffffff', textCharcoal: '#393939', textBlack: '#000000', borderColor: '#d1cec7' },
+    contactSettings: { id: 1, address: '', phone: '', schedule: '', facebook: '', instagram: '', footerText: '' },
     hero: { id: 1, title: '', subtitle: '', imageUrl: '' },
     locations: []
   });
@@ -194,6 +195,7 @@ export default function AdminDashboard() {
   const getStateKey = (tableName) => {
     if (tableName === 'brand_settings') return 'brandSettings';
     if (tableName === 'hero_settings') return 'hero';
+    if (tableName === 'contact_settings') return 'contactSettings';
     return tableName;
   };
 
@@ -468,7 +470,8 @@ export default function AdminDashboard() {
     { id: 'dashboard', label: 'Resumen / Dashboard' },
     { id: 'branding', label: 'Identidad y Logo' },
     { id: 'hero', label: 'Sección Hero' },
-    { id: 'locations', label: 'Sucursales y Mapas' }
+    { id: 'locations', label: 'Sucursales y Mapas' },
+    { id: 'footer', label: 'Footer y Contacto' }
   ];
 
   if (loading || !cmsData) return <div style={{ padding: '5rem', textAlign: 'center', fontSize: '1.5rem', fontWeight: 'bold' }}>Cargando Panel GEO GYM...</div>;
@@ -526,10 +529,7 @@ export default function AdminDashboard() {
                 <h3>Total Sucursales</h3>
                 <p>{cmsData.locations.length}</p>
               </div>
-              
             </div>
-            
-            
           </div>
         )}
 
@@ -544,7 +544,6 @@ export default function AdminDashboard() {
 
             <div className="admin-grid">
               <div className="admin-stack">
-
                 <div className="form-group">
                   <label className="form-label">Nombre de Marca</label>
                   <input 
@@ -556,40 +555,8 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Link de Facebook</label>
-                  <input 
-                    type="text" 
-                    defaultValue={cmsData.contactSettings?.facebook || ''} 
-                    onBlur={(e) => handleUpdate('contact_settings', 'facebook', e.target.value, cmsData.contactSettings.id)} 
-                    className="form-input" 
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Link de Instagram</label>
-                  <input 
-                    type="text" 
-                    defaultValue={cmsData.contactSettings?.instagram || ''} 
-                    onBlur={(e) => handleUpdate('contact_settings', 'instagram', e.target.value, cmsData.contactSettings.id)} 
-                    className="form-input" 
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Texto del Footer</label>
-                  <input 
-                    type="text" 
-                    defaultValue={cmsData.contactSettings?.footerText || ''} 
-                    onBlur={(e) => handleUpdate('contact_settings', 'footerText', e.target.value, cmsData.contactSettings.id)} 
-                    className="form-input" 
-                  />
-                </div>
-
-                <div className="form-group">
                   <label className="form-label">Paleta de Colores</label>
-
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    
                     {[
                       { key: 'accentColor', label: 'Color de Acento (Primario)', default: defaultColors.accentColor },
                       { key: 'bgCremita', label: 'Fondo Secundario', default: defaultColors.bgCremita },
@@ -599,7 +566,6 @@ export default function AdminDashboard() {
                       { key: 'borderColor', label: 'Líneas y Bordes', default: defaultColors.borderColor }
                     ].map(color => (
                       <div key={color.key} className="color-picker-wrapper">
-                        
                         <input
                           type="color"
                           className="color-input-native"
@@ -607,7 +573,6 @@ export default function AdminDashboard() {
                           onChange={(e) => handleColorChange(color.key, e.target.value)}
                           onBlur={(e) => handleUpdate('brand_settings', color.key, e.target.value, cmsData.brandSettings.id)}
                         />
-
                         <input 
                           type="text" 
                           value={cmsData.brandSettings[color.key] || color.default} 
@@ -616,10 +581,8 @@ export default function AdminDashboard() {
                           className="form-input" 
                           placeholder={color.default}
                         />
-
                       </div>
                     ))}
-
                   </div>
 
                   <button 
@@ -630,14 +593,11 @@ export default function AdminDashboard() {
                     Restablecer Colores por Defecto
                   </button>
                 </div>
-
               </div>
 
               <div className="admin-stack">
-
                 <div className="form-group">
                   <label className="form-label">Logo GEO GYM</label>
-
                   <ImageDropzone 
                     currentImage={cmsData.brandSettings.logoUrl}
                     onUpload={(dataUrl) => handleImageUploadConfirm(dataUrl, cmsData.brandSettings.id, 'logoUrl', 'brand_settings')}
@@ -645,7 +605,6 @@ export default function AdminDashboard() {
                     placeholderText="Arrastra el nuevo logo aquí"
                   />
                 </div>
-
               </div>
             </div>
           </div>
@@ -687,6 +646,75 @@ export default function AdminDashboard() {
                     onRemove={() => handleDeleteImage(cmsData.hero.imageUrl, cmsData.hero.id, 'imageUrl', 'hero_settings')}
                     placeholderText="Arrastra la imagen Hero aquí"
                   />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeSection === 'footer' && (
+          <div className="admin-card">
+            <div className="admin-card-header">
+              <h3>Ajustes de Footer y Contacto</h3>
+            </div>
+            <div className="admin-grid">
+              <div className="admin-stack">
+                <div className="form-group">
+                  <label className="form-label">Dirección Principal</label>
+                  <input 
+                    type="text" 
+                    defaultValue={cmsData.contactSettings?.address || ''} 
+                    onBlur={(e) => handleUpdate('contact_settings', 'address', e.target.value, cmsData.contactSettings.id)} 
+                    className="form-input" 
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Teléfono</label>
+                  <input 
+                    type="text" 
+                    defaultValue={cmsData.contactSettings?.phone || ''} 
+                    onBlur={(e) => handleUpdate('contact_settings', 'phone', e.target.value, cmsData.contactSettings.id)} 
+                    className="form-input" 
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Horarios de Atención</label>
+                  <input 
+                    type="text" 
+                    defaultValue={cmsData.contactSettings?.schedule || ''} 
+                    onBlur={(e) => handleUpdate('contact_settings', 'schedule', e.target.value, cmsData.contactSettings.id)} 
+                    className="form-input" 
+                  />
+                </div>
+              </div>
+              <div className="admin-stack">
+                <div className="form-group">
+                  <label className="form-label">Link de Facebook</label>
+                  <input 
+                    type="text" 
+                    defaultValue={cmsData.contactSettings?.facebook || ''} 
+                    onBlur={(e) => handleUpdate('contact_settings', 'facebook', e.target.value, cmsData.contactSettings.id)} 
+                    className="form-input" 
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Link de Instagram</label>
+                  <input 
+                    type="text" 
+                    defaultValue={cmsData.contactSettings?.instagram || ''} 
+                    onBlur={(e) => handleUpdate('contact_settings', 'instagram', e.target.value, cmsData.contactSettings.id)} 
+                    className="form-input" 
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Descripción Larga del Footer</label>
+                  <textarea 
+                    defaultValue={cmsData.contactSettings?.footerText || ''} 
+                    onBlur={(e) => handleUpdate('contact_settings', 'footerText', e.target.value, cmsData.contactSettings.id)} 
+                    className="form-input" 
+                    rows={4}
+                    style={{ resize: 'vertical' }}
+                  ></textarea>
                 </div>
               </div>
             </div>
@@ -791,7 +819,7 @@ export default function AdminDashboard() {
           <div className="modal-content">
             <div className="modal-header">
               <h3>Editar Sucursal: {editingLoc.name}</h3>
-              <button onClick={() => setIsModalOpen(false)} className="btn-close">&times;</button>
+              <button onClick={() => setIsModalOpen(false)} className="btn-close">×</button>
             </div>
             <div className="modal-body">
               <div className="admin-grid">
@@ -888,7 +916,7 @@ export default function AdminDashboard() {
           <div className="modal-content" style={{ maxWidth: '600px' }}>
             <div className="modal-header">
               <h3>{editingLead.id ? 'Editar Prospecto' : 'Añadir Nuevo Prospecto'}</h3>
-              <button onClick={() => setIsLeadModalOpen(false)} className="btn-close">&times;</button>
+              <button onClick={() => setIsLeadModalOpen(false)} className="btn-close">×</button>
             </div>
             <form onSubmit={handleSaveLead}>
               <div className="modal-body">

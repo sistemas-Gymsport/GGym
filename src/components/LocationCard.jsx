@@ -68,18 +68,11 @@ export default function LocationCard({ location }) {
   return (
     <div className="location-card-modern">
       
-      {/* NUEVA SECCIÓN DE IMAGEN CON EFECTO BLUR */}
+      {/* IMAGEN BORDE A BORDE */}
       <div className="location-image-wrapper">
         <img
           src={location.imageUrl || "/default-location.jpg"}
-          alt=""
-          className="location-image-bg"
-          aria-hidden="true"
-        />
-        <img
-          src={location.imageUrl || "/default-location.jpg"}
           alt={`Instalaciones en ${location.name}`}
-          className="location-image-main"
         />
       </div>
 
@@ -87,7 +80,7 @@ export default function LocationCard({ location }) {
         <div className="location-header">
           <h3>{location.name}</h3>
           <p className="address-text">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>

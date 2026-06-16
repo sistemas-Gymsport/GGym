@@ -77,6 +77,8 @@ export default function Home() {
   useEffect(() => {
     if (locationPath.pathname === '/sucursales') {
       document.getElementById('sucursales')?.scrollIntoView({ behavior: 'smooth' });
+    } else if (locationPath.pathname === '/ofertas') {
+      document.getElementById('ofertas')?.scrollIntoView({ behavior: 'smooth' });
     } else if (locationPath.pathname === '/precios' || locationPath.pathname === '/contacto') {
       document.getElementById('contacto')?.scrollIntoView({ behavior: 'smooth' });
     } else {
@@ -171,7 +173,46 @@ Quedo a la espera de su informacion más a detalle.`;
         </div>
       </section>
 
-      <section className="section section-white" id="contacto">
+      <section className="section section-white" id="ofertas">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">
+              Ofertas <span>Especiales</span>
+            </h2>
+            <p className="subtitle">
+              Aprovecha nuestras promociones exclusivas por tiempo limitado para alcanzar tus objetivos con el mejor equipamiento.
+            </p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2.5rem', maxWidth: '1000px', margin: '0 auto' }}>
+            <div className="form-card" style={{ margin: '0', padding: '2.5rem', borderLeft: '4px solid var(--brand-coral)', display: 'flex', flexDirection: 'column', gap: '1rem', justifyContent: 'space-between' }}>
+              <div>
+                <span style={{ textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: '800', color: 'var(--brand-coral)', letterSpacing: '1.5px', display: 'block', marginBottom: '0.5rem' }}>Preventa Exclusiva</span>
+                <h3 style={{ fontSize: '1.5rem', color: 'var(--text-black)', fontWeight: '800', marginBottom: '0.5rem' }}>Membresía Fundadora</h3>
+                <p style={{ color: 'var(--text-charcoal)', fontSize: '0.95rem' }}>Inscripción 100% gratuita y tarifa preferencial vitalicia asegurada para los primeros miembros registrados antes de la gran apertura.</p>
+              </div>
+              <div style={{ marginTop: '1.5rem' }}>
+                <a href="#contacto" className="btn btn-primary btn-block" style={{ fontSize: '0.95rem', padding: '0.75rem' }}>
+                  Cotizar Membresía
+                </a>
+              </div>
+            </div>
+            <div className="form-card" style={{ margin: '0', padding: '2.5rem', borderLeft: '4px solid var(--text-black)', display: 'flex', flexDirection: 'column', gap: '1rem', justifyContent: 'space-between' }}>
+              <div>
+                <span style={{ textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-charcoal)', letterSpacing: '1.5px', display: 'block', marginBottom: '0.5rem' }}>Pase de Cortesía</span>
+                <h3 style={{ fontSize: '1.5rem', color: 'var(--text-black)', fontWeight: '800', marginBottom: '0.5rem' }}>Entrenamiento de Prueba</h3>
+                <p style={{ color: 'var(--text-charcoal)', fontSize: '0.95rem' }}>Obtén un acceso de un día completo para conocer de primera mano nuestras instalaciones de lujo y equipamiento biomecánico avanzado.</p>
+              </div>
+              <div style={{ marginTop: '1.5rem' }}>
+                <a href="#contacto" className="btn btn-secondary btn-block" style={{ fontSize: '0.95rem', padding: '0.75rem', border: '1px solid var(--border-color)' }}>
+                  Solicitar Pase Gratis
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section section-cremita" id="contacto">
         <div className="container">
           <div className="form-card">
             <div className="section-header" style={{ marginBottom: '2rem' }}>

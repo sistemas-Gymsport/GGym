@@ -20,6 +20,7 @@ export default function Navbar({ brandSettings }) {
         <div className="nav-links">
           <Link to="/">Inicio</Link>
           <Link to="/sucursales">Sucursales</Link>
+          <Link to="/ofertas">Ofertas</Link>
           <Link to="/precios">Planes</Link>
         </div>
         <div className="nav-action">
@@ -30,4 +31,4 @@ export default function Navbar({ brandSettings }) {
       </div>
     </nav>
   );
-} 
+}

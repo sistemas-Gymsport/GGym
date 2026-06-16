@@ -143,4 +143,4 @@ export default function FooterSettings() {
       </form>
     </div>
   );
-}
+}   

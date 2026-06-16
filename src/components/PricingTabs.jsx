@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import LocationCard from './LocationCard';
+import './PricingTabs.css';
 
 export default function PricingTabs({ locations }) {
   const [activeTab, setActiveTab] = useState(locations?.[0]?.id || null);
@@ -25,7 +26,6 @@ export default function PricingTabs({ locations }) {
             onClick={() => setActiveTab(location.id)}
             className={`tab-btn ${activeTab === location.id ? 'active' : ''}`}
           >
-            {/* Ícono de Pin de Mapa */}
             <svg 
               className="tab-icon" 
               viewBox="0 0 24 24" 

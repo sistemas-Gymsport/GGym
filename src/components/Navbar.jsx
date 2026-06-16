@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import './Navbar.css';
 
 export default function Navbar({ brandSettings }) {
   const brandName = brandSettings?.brandName || 'GEO GYM';
@@ -29,4 +30,4 @@ export default function Navbar({ brandSettings }) {
       </div>
     </nav>
   );
-}
+} 

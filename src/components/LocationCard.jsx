@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import './LocationCard.css';
 
 export default function LocationCard({ location }) {
   const formatText = (text) => {
@@ -25,13 +26,9 @@ export default function LocationCard({ location }) {
         const label = trimmed.substring(0, colonIndex).trim();
         const rest = trimmed.substring(colonIndex + 1).trim();
         
-        // Detectar si es el campo de WhatsApp para convertirlo en botón dinámico
         if (label.toLowerCase() === 'whatsapp') {
-          // Extraer solo los números
           const cleanNumber = rest.replace(/\D/g, '');
-          // Si tiene 10 dígitos, asume que es de México y le agrega el 52
           const waNumber = cleanNumber.length === 10 ? `52${cleanNumber}` : cleanNumber;
-          // Mensaje automático personalizado por sucursal
           const waMessage = encodeURIComponent(`Hola, me interesa pedir información sobre la sucursal ${location.name}.`);
           const waLink = `https://wa.me/${waNumber}?text=${waMessage}`;
 

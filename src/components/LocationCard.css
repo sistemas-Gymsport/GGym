@@ -1,0 +1,199 @@
+.location-card-modern {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  background-color: var(--bg-white);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  border: 1px solid var(--border-color);
+  transition: transform 0.3s ease;
+  max-width: 950px;
+  margin: 0 auto;
+}
+.location-card-modern:hover {
+  transform: translateY(-4px);
+}
+.location-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  background-color: var(--bg-cremita);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+.location-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  max-height: 600px;
+  object-fit: contain;
+}
+.location-badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(5px);
+  padding: 0.4rem 0.8rem;
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--brand-coral);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  box-shadow: var(--shadow-sm);
+}
+.location-badge svg {
+  width: 14px;
+  height: 14px;
+}
+.location-content-modern {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+.location-header {
+  margin-bottom: 1.5rem;
+}
+.location-header h3 {
+  font-size: 1.8rem;
+  color: var(--text-black);
+  line-height: 1.1;
+  margin-bottom: 0.4rem;
+}
+.address-text {
+  color: var(--text-charcoal);
+  font-weight: 500;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  opacity: 0.8;
+}
+.price-highlight-box {
+  background: linear-gradient(145deg, #fff5f5, #ffeaea);
+  border: 1px solid rgba(246, 72, 81, 0.2);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  border-left: 4px solid var(--brand-coral);
+}
+.price-subtitle {
+  color: var(--brand-coral);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.2rem;
+}
+.price-main {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--text-black);
+  line-height: 1;
+}
+.location-info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 2rem;
+  flex: 1;
+  font-size: 0.9rem;
+}
+.location-spacer {
+  height: 0.75rem;
+}
+.location-subheader {
+  color: var(--brand-coral);
+  font-size: 1rem;
+  font-weight: 800;
+  margin-top: 0.75rem;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid var(--border-color);
+}
+.location-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-bottom: 1px dashed var(--border-color);
+}
+.detail-label {
+  font-weight: 700;
+  color: var(--text-black);
+}
+.detail-value {
+  font-weight: 500;
+  color: var(--text-charcoal);
+  text-align: right;
+}
+.location-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.2rem 0;
+}
+.check-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--brand-coral);
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+.location-map-container {
+  margin-bottom: 2rem;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  height: 250px;
+}
+.location-map-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+.cta-button {
+  margin-top: auto;
+  padding: 1rem;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.wa-link-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #25D366;
+  color: #ffffff !important;
+  padding: 0.4rem 1rem;
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-decoration: none;
+}
+.wa-link-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
+  color: #ffffff !important;
+}
+.wa-icon {
+  width: 18px;
+  height: 18px;
+}
+@media (max-width: 992px) {
+  .location-card-modern {
+    grid-template-columns: 1fr;
+  }
+  .location-image-wrapper {
+    min-height: 200px;
+  }
+  .location-content-modern {
+    padding: 1.5rem;
+  }
+}

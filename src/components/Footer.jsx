@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import './Footer.css';
 
 export default function Footer({ brandSettings, contactSettings }) {
   const brandName = brandSettings?.brandName || 'GEO GYM';
@@ -30,8 +31,6 @@ export default function Footer({ brandSettings, contactSettings }) {
               )}
             </Link>
             <p>{description}</p>
-            
-            {/* Contenedor de íconos sociales actualizados */}
             <div className="social-links-footer" style={{ display: 'flex', gap: '15px', marginTop: '15px' }}>
               <a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="social-btn fb" aria-label="Facebook">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -46,7 +45,6 @@ export default function Footer({ brandSettings, contactSettings }) {
                 </svg>
               </a>
             </div>
-            
           </div>
           
           <div className="footer-links">
@@ -69,7 +67,6 @@ export default function Footer({ brandSettings, contactSettings }) {
           </div>
         </div>
         
-        {/* Parte inferior con el ícono oculto del admin */}
         <div className="footer-bottom" style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <p>&copy; {new Date().getFullYear()} {brandName}. Todos los derechos reservados.</p>
           

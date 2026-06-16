@@ -29,7 +29,7 @@
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.tab-icon {
+.tab-icon { 
   width: 18px;
   height: 18px;
   opacity: 0.6;

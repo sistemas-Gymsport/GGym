@@ -159,7 +159,14 @@ export default function AdminDashboard() {
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
   const [editingLead, setEditingLead] = useState(null);
 
-  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  // Estado para el modal de doble confirmación
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    step: 1,
+    title: '',
+    message1: '',
+    onConfirm: null
+  });
 
   const navigate = useNavigate();
 
@@ -241,8 +248,18 @@ export default function AdminDashboard() {
     }));
   };
 
+  // Disparador genérico para el Modal de Confirmación Doble
+  const requestDelete = (onConfirm, title, message1) => {
+    setConfirmModal({
+      isOpen: true,
+      step: 1,
+      title,
+      message1,
+      onConfirm
+    });
+  };
+
   const confirmResetColors = async () => {
-    setShowResetConfirm(false);
     setSavingStatus('restableciendo colores...');
     try {
       await Promise.all(
@@ -295,8 +312,6 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteLocation = async (id) => {
-    if (!window.confirm('¿Estás seguro de eliminar esta sucursal?')) return;
-    if (!window.confirm('Esta acción es irreversible. ¿Confirmas la eliminación definitiva?')) return;
     setSavingStatus('eliminando...');
     try {
       const response = await fetch('/api/cms', {
@@ -348,7 +363,6 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteOffer = async (id) => {
-    if (!window.confirm('¿Estás seguro de eliminar esta oferta?')) return;
     setSavingStatus('eliminando...');
     try {
       const response = await fetch('/api/cms', {
@@ -414,7 +428,6 @@ export default function AdminDashboard() {
 
   const handleDeleteImage = async (url, entityId, targetField, tableName) => {
     if (!url) return;
-    if (!window.confirm('¿Seguro que deseas eliminar esta imagen de forma permanente?')) return;
     
     setSavingStatus('eliminando de Cloudinary...');
     try {
@@ -502,9 +515,6 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteLead = async (id) => {
-    if (!window.confirm('¿Estás seguro de eliminar este prospecto?')) return;
-    if (!window.confirm('Esta acción eliminará el registro permanentemente. ¿Confirmar?')) return;
-    
     setSavingStatus('eliminando...');
     try {
       const response = await fetch('/api/lead', {
@@ -533,7 +543,8 @@ export default function AdminDashboard() {
     { id: 'hero', label: 'Sección Hero' },
     { id: 'locations', label: 'Sucursales y Mapas' },
     { id: 'offers', label: 'Ofertas y Promociones' },
-    { id: 'footer', label: 'Footer y Contacto' }
+    { id: 'footer', label: 'Footer y Contacto' },
+    { id: 'leads', label: 'Prospectos' }
   ];
 
   if (loading || !cmsData) return <div style={{ padding: '5rem', textAlign: 'center', fontSize: '1.5rem', fontWeight: 'bold' }}>Cargando Panel GEO GYM...</div>;
@@ -591,6 +602,14 @@ export default function AdminDashboard() {
                 <h3>Total Sucursales</h3>
                 <p>{cmsData.locations.length}</p>
               </div>
+              <div className="stat-card">
+                <h3>Total Ofertas</h3>
+                <p>{cmsData.offers?.length || 0}</p>
+              </div>
+              <div className="stat-card">
+                <h3>Total Prospectos</h3>
+                <p>{leads.length}</p>
+              </div>
             </div>
           </div>
         )}
@@ -645,7 +664,7 @@ export default function AdminDashboard() {
                   </div>
 
                   <button 
-                    onClick={() => setShowResetConfirm(true)} 
+                    onClick={() => requestDelete(confirmResetColors, 'Restablecer Colores', '¿Restaurar la paleta de colores a sus valores originales?')} 
                     className="btn btn-outline" 
                     style={{ marginTop: '1.5rem', width: '100%' }}
                   >
@@ -660,7 +679,7 @@ export default function AdminDashboard() {
                   <ImageDropzone 
                     currentImage={cmsData.brandSettings.logoUrl}
                     onUpload={(dataUrl) => handleImageUploadConfirm(dataUrl, cmsData.brandSettings.id, 'logoUrl', 'brand_settings')}
-                    onRemove={() => handleDeleteImage(cmsData.brandSettings.logoUrl, cmsData.brandSettings.id, 'logoUrl', 'brand_settings')}
+                    onRemove={() => requestDelete(() => handleDeleteImage(cmsData.brandSettings.logoUrl, cmsData.brandSettings.id, 'logoUrl', 'brand_settings'), 'Eliminar Logo', '¿Seguro que deseas eliminar el logo de la marca?')}
                     placeholderText="Arrastra el nuevo logo aquí"
                   />
                 </div>
@@ -702,7 +721,7 @@ export default function AdminDashboard() {
                   <ImageDropzone 
                     currentImage={cmsData.hero.imageUrl}
                     onUpload={(dataUrl) => handleImageUploadConfirm(dataUrl, cmsData.hero.id, 'imageUrl', 'hero_settings')}
-                    onRemove={() => handleDeleteImage(cmsData.hero.imageUrl, cmsData.hero.id, 'imageUrl', 'hero_settings')}
+                    onRemove={() => requestDelete(() => handleDeleteImage(cmsData.hero.imageUrl, cmsData.hero.id, 'imageUrl', 'hero_settings'), 'Eliminar Imagen Hero', '¿Seguro que deseas eliminar la imagen principal?')}
                     placeholderText="Arrastra la imagen Hero aquí"
                   />
                 </div>
@@ -870,34 +889,60 @@ export default function AdminDashboard() {
         )}
       </main>
 
-      {showResetConfirm && (
-        <div className="modal-overlay">
-          <div className="modal-content modal-alert">
+      {/* Modal Genérico de Doble Confirmación ("Segurísimo") */}
+      {confirmModal.isOpen && (
+        <div className="modal-overlay" style={{ zIndex: 9999 }}>
+          <div className="modal-content modal-alert" style={{ maxWidth: '400px', textAlign: 'center' }}>
             <div className="modal-body">
-              <div style={{ marginBottom: '1.5rem', color: 'var(--brand-coral)' }}>
-                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                  <line x1="12" y1="9" x2="12" y2="13"></line>
-                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                </svg>
+              <div style={{ marginBottom: '1.5rem', color: confirmModal.step === 1 ? '#ff9800' : 'var(--brand-coral)', transition: 'color 0.3s' }}>
+                {confirmModal.step === 1 ? (
+                   <svg viewBox="0 0 24 24" width="56" height="56" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" width="56" height="56" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                )}
               </div>
-              <h3>¿Restablecer Colores?</h3>
-              <p style={{ color: 'var(--text-charcoal)', marginTop: '0.5rem' }}>
-                Esta acción restaurará la paleta de colores a sus valores originales. No podrás deshacer este cambio.
+              <h3>{confirmModal.step === 1 ? confirmModal.title : '¿Segurísimo?'}</h3>
+              <p style={{ color: 'var(--text-charcoal)', marginTop: '0.5rem', minHeight: '3rem' }}>
+                {confirmModal.step === 1 
+                  ? confirmModal.message1 
+                  : 'Esta acción es irreversible y los datos se eliminarán permanentemente. ¿Confirmas la acción?'}
               </p>
             </div>
-            <div className="modal-footer">
-              <button onClick={() => setShowResetConfirm(false)} className="btn btn-secondary">
+            <div className="modal-footer" style={{ justifyContent: 'center', gap: '1rem' }}>
+              <button onClick={() => setConfirmModal({ ...confirmModal, isOpen: false })} className="btn btn-secondary">
                 Cancelar
               </button>
-              <button onClick={confirmResetColors} className="btn btn-primary">
-                Sí, Restablecer
-              </button>
+              {confirmModal.step === 1 ? (
+                <button 
+                  onClick={() => setConfirmModal({ ...confirmModal, step: 2 })} 
+                  className="btn btn-primary" 
+                  style={{ backgroundColor: '#ff9800', borderColor: '#ff9800', color: '#fff' }}
+                >
+                  Sí, Continuar
+                </button>
+              ) : (
+                <button 
+                  onClick={() => { confirmModal.onConfirm(); setConfirmModal({ ...confirmModal, isOpen: false }); }} 
+                  className="btn btn-primary" 
+                  style={{ backgroundColor: 'var(--brand-coral)', borderColor: 'var(--brand-coral)', color: '#fff' }}
+                >
+                  Sí, Eliminar Definitivamente
+                </button>
+              )}
             </div>
           </div>
         </div>
       )}
 
+      {/* Modal de Sucursales */}
       {isModalOpen && editingLoc && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -976,7 +1021,7 @@ export default function AdminDashboard() {
                     <ImageDropzone 
                       currentImage={editingLoc.imageUrl}
                       onUpload={(dataUrl) => handleImageUploadConfirm(dataUrl, editingLoc.id, 'imageUrl', 'locations')}
-                      onRemove={() => handleDeleteImage(editingLoc.imageUrl, editingLoc.id, 'imageUrl', 'locations')}
+                      onRemove={() => requestDelete(() => handleDeleteImage(editingLoc.imageUrl, editingLoc.id, 'imageUrl', 'locations'), 'Eliminar Imagen', '¿Seguro que deseas eliminar la foto de esta sucursal?')}
                       placeholderText="Arrastra la foto de la sucursal aquí"
                     />
                   </div>
@@ -984,7 +1029,7 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div className="modal-footer">
-              <button onClick={() => handleDeleteLocation(editingLoc.id)} className="btn-delete">
+              <button onClick={() => requestDelete(() => handleDeleteLocation(editingLoc.id), 'Eliminar Sucursal', '¿Estás seguro de eliminar esta sucursal?')} className="btn-delete">
                 Eliminar Sucursal Definitivamente
               </button>
               <button onClick={() => setIsModalOpen(false)} className="btn btn-primary">
@@ -995,6 +1040,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
+      {/* Modal de Ofertas */}
       {isOfferModalOpen && editingOffer && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -1048,7 +1094,7 @@ export default function AdminDashboard() {
                     <ImageDropzone 
                       currentImage={editingOffer.imageUrl}
                       onUpload={(dataUrl) => handleImageUploadConfirm(dataUrl, editingOffer.id, 'imageUrl', 'offers')}
-                      onRemove={() => handleDeleteImage(editingOffer.imageUrl, editingOffer.id, 'imageUrl', 'offers')}
+                      onRemove={() => requestDelete(() => handleDeleteImage(editingOffer.imageUrl, editingOffer.id, 'imageUrl', 'offers'), 'Eliminar Imagen', '¿Seguro que deseas eliminar la imagen de esta oferta?')}
                       placeholderText="Arrastra la foto horizontal aquí"
                     />
                   </div>
@@ -1056,7 +1102,7 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div className="modal-footer">
-              <button onClick={() => handleDeleteOffer(editingOffer.id)} className="btn-delete">
+              <button onClick={() => requestDelete(() => handleDeleteOffer(editingOffer.id), 'Eliminar Oferta', '¿Estás seguro de eliminar esta oferta?')} className="btn-delete">
                 Eliminar Oferta Definitivamente
               </button>
               <button onClick={() => setIsOfferModalOpen(false)} className="btn btn-primary">
@@ -1067,6 +1113,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
+      {/* Modal de Prospectos */}
       {isLeadModalOpen && editingLead && (
         <div className="modal-overlay">
           <div className="modal-content" style={{ maxWidth: '600px' }}>
@@ -1121,7 +1168,7 @@ export default function AdminDashboard() {
               </div>
               <div className="modal-footer">
                 {editingLead.id && (
-                  <button type="button" onClick={() => handleDeleteLead(editingLead.id)} className="btn-delete">
+                  <button type="button" onClick={() => requestDelete(() => handleDeleteLead(editingLead.id), 'Eliminar Prospecto', '¿Estás seguro de eliminar este prospecto?')} className="btn-delete">
                     Eliminar Prospecto
                   </button>
                 )}

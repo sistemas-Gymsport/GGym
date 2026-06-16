@@ -7,6 +7,7 @@ export default async function handler(req, res) {
       const contactRes = await query('SELECT * FROM contact_settings ORDER BY id LIMIT 1');
       const heroRes = await query('SELECT * FROM hero_settings ORDER BY id LIMIT 1');
       const locationsRes = await query('SELECT * FROM locations ORDER BY id');
+      const offersRes = await query('SELECT * FROM offers ORDER BY id');
 
       return res.status(200).json({
         success: true,
@@ -14,7 +15,8 @@ export default async function handler(req, res) {
           brandSettings: brandRes.rows[0] || {},
           contactSettings: contactRes.rows[0] || {},
           hero: heroRes.rows[0] || {},
-          locations: locationsRes.rows || []
+          locations: locationsRes.rows || [],
+          offers: offersRes.rows || []
         }
       });
     } catch (error) {
@@ -40,6 +42,18 @@ export default async function handler(req, res) {
 
       if (action === 'delete_location') {
          const dbQuery = `DELETE FROM locations WHERE id = $1 RETURNING *`;
+         const result = await query(dbQuery, [entityId]);
+         return res.status(200).json({ success: true, data: result.rows[0] });
+      }
+
+      if (action === 'create_offer') {
+         const dbQuery = `INSERT INTO offers (title, description, details, "imageUrl") VALUES ('Nueva Oferta', 'Descripción corta de la oferta', 'Detalles detallados de la oferta...', '') RETURNING *`;
+         const result = await query(dbQuery);
+         return res.status(200).json({ success: true, data: result.rows[0] });
+      }
+
+      if (action === 'delete_offer') {
+         const dbQuery = `DELETE FROM offers WHERE id = $1 RETURNING *`;
          const result = await query(dbQuery, [entityId]);
          return res.status(200).json({ success: true, data: result.rows[0] });
       }

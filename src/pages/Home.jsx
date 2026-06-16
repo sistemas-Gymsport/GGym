@@ -30,7 +30,8 @@ export default function Home() {
       subtitle: 'Instalaciones de lujo, equipo biomecánico avanzado y un entorno diseñado para resultados reales.',
       imageUrl: ''
     },
-    locations: []
+    locations: [],
+    offers: []
   });
 
   const [formData, setFormData] = useState({
@@ -41,6 +42,7 @@ export default function Home() {
   });
 
   const [status, setStatus] = useState({ success: false, error: null, loading: false });
+  const [selectedOffer, setSelectedOffer] = useState(null);
 
   useEffect(() => {
     async function loadPageData() {
@@ -53,7 +55,8 @@ export default function Home() {
             brandSettings: { ...prev.brandSettings, ...result.data.brandSettings },
             contactSettings: result.data.contactSettings || prev.contactSettings,
             hero: result.data.hero || prev.hero,
-            locations: result.data.locations || []
+            locations: result.data.locations || [],
+            offers: result.data.offers || []
           }));
         }
       } catch (err) {
@@ -77,8 +80,6 @@ export default function Home() {
   useEffect(() => {
     if (locationPath.pathname === '/sucursales') {
       document.getElementById('sucursales')?.scrollIntoView({ behavior: 'smooth' });
-    } else if (locationPath.pathname === '/ofertas') {
-      document.getElementById('ofertas')?.scrollIntoView({ behavior: 'smooth' });
     } else if (locationPath.pathname === '/precios' || locationPath.pathname === '/contacto') {
       document.getElementById('contacto')?.scrollIntoView({ behavior: 'smooth' });
     } else {
@@ -124,14 +125,7 @@ export default function Home() {
         waNumber = fallbackNumber.length === 10 ? `52${fallbackNumber}` : fallbackNumber;
       }
 
-      const message = `Solicitud de entrenamiento de prueba.
-Datos del interesado:
-- Nombre: ${formData.name}
-- Correo: ${formData.email}
-- Teléfono: ${formData.phone}
-- Sucursal de interés: ${formData.location}
-
-Quedo a la espera de su informacion más a detalle.`;
+      const message = `Solicitud de entrenamiento de prueba.\nDatos del interesado:\n- Nombre: ${formData.name}\n- Correo: ${formData.email}\n- Teléfono: ${formData.phone}\n- Sucursal de interés: ${formData.location}\n\nQuedo a la espera de su informacion más a detalle.`;
       const encodedMessage = encodeURIComponent(message);
 
       window.open(`https://wa.me/${waNumber}?text=${encodedMessage}`, '_blank');
@@ -173,44 +167,36 @@ Quedo a la espera de su informacion más a detalle.`;
         </div>
       </section>
 
-      <section className="section section-white" id="ofertas">
-        <div className="container">
-          <div className="section-header">
-            <h2 className="section-title">
-              Ofertas <span>Especiales</span>
-            </h2>
-            <p className="subtitle">
-              Aprovecha nuestras promociones exclusivas por tiempo limitado para alcanzar tus objetivos con el mejor equipamiento.
-            </p>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2.5rem', maxWidth: '1000px', margin: '0 auto' }}>
-            <div className="form-card" style={{ margin: '0', padding: '2.5rem', borderLeft: '4px solid var(--brand-coral)', display: 'flex', flexDirection: 'column', gap: '1rem', justifyContent: 'space-between' }}>
-              <div>
-                <span style={{ textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: '800', color: 'var(--brand-coral)', letterSpacing: '1.5px', display: 'block', marginBottom: '0.5rem' }}>Preventa Exclusiva</span>
-                <h3 style={{ fontSize: '1.5rem', color: 'var(--text-black)', fontWeight: '800', marginBottom: '0.5rem' }}>Membresía Fundadora</h3>
-                <p style={{ color: 'var(--text-charcoal)', fontSize: '0.95rem' }}>Inscripción 100% gratuita y tarifa preferencial vitalicia asegurada para los primeros miembros registrados antes de la gran apertura.</p>
-              </div>
-              <div style={{ marginTop: '1.5rem' }}>
-                <a href="#contacto" className="btn btn-primary btn-block" style={{ fontSize: '0.95rem', padding: '0.75rem' }}>
-                  Cotizar Membresía
-                </a>
-              </div>
+      {cmsData.offers && cmsData.offers.length > 0 && (
+        <section className="section section-white" id="ofertas">
+          <div className="container">
+            <div className="section-header">
+              <h2 className="section-title">
+                Ofertas <span>Especiales</span>
+              </h2>
+              <p className="subtitle">
+                Aprovecha nuestras promociones exclusivas diseñadas para impulsar tu rendimiento.
+              </p>
             </div>
-            <div className="form-card" style={{ margin: '0', padding: '2.5rem', borderLeft: '4px solid var(--text-black)', display: 'flex', flexDirection: 'column', gap: '1rem', justifyContent: 'space-between' }}>
-              <div>
-                <span style={{ textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-charcoal)', letterSpacing: '1.5px', display: 'block', marginBottom: '0.5rem' }}>Pase de Cortesía</span>
-                <h3 style={{ fontSize: '1.5rem', color: 'var(--text-black)', fontWeight: '800', marginBottom: '0.5rem' }}>Entrenamiento de Prueba</h3>
-                <p style={{ color: 'var(--text-charcoal)', fontSize: '0.95rem' }}>Obtén un acceso de un día completo para conocer de primera mano nuestras instalaciones de lujo y equipamiento biomecánico avanzado.</p>
-              </div>
-              <div style={{ marginTop: '1.5rem' }}>
-                <a href="#contacto" className="btn btn-secondary btn-block" style={{ fontSize: '0.95rem', padding: '0.75rem', border: '1px solid var(--border-color)' }}>
-                  Solicitar Pase Gratis
-                </a>
-              </div>
+            <div className="list-grid">
+              {cmsData.offers.map(offer => (
+                <div key={offer.id} className="location-item" style={{ cursor: 'pointer' }} onClick={() => setSelectedOffer(offer)}>
+                  {offer.imageUrl && (
+                    <div style={{ width: '100%', height: '200px', overflow: 'hidden', borderRadius: '0.5rem', marginBottom: '1rem' }}>
+                      <img src={offer.imageUrl} alt={offer.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  )}
+                  <h4>{offer.title}</h4>
+                  <p style={{ margin: '0.5rem 0 1rem 0' }}>{offer.description}</p>
+                  <button className="btn btn-secondary btn-block" style={{ marginTop: 'auto' }}>
+                    Ver más detalles
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="section section-cremita" id="contacto">
         <div className="container">
@@ -299,6 +285,32 @@ Quedo a la espera de su informacion más a detalle.`;
       </section>
 
       <Footer brandSettings={cmsData.brandSettings} contactSettings={cmsData.contactSettings} />
+
+      {selectedOffer && (
+        <div className="modal-overlay" onClick={() => setSelectedOffer(null)}>
+          <div className="modal-content" style={{ maxWidth: '650px' }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>{selectedOffer.title}</h3>
+              <button onClick={() => setSelectedOffer(null)} className="btn-close">×</button>
+            </div>
+            <div className="modal-body">
+              {selectedOffer.imageUrl && (
+                <div style={{ width: '100%', maxHeight: '300px', overflow: 'hidden', borderRadius: '0.5rem', marginBottom: '1.5rem' }}>
+                  <img src={selectedOffer.imageUrl} alt={selectedOffer.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+              )}
+              <p style={{ color: 'var(--text-charcoal)', whiteSpace: 'pre-line', fontSize: '1.05rem', lineHeight: '1.7' }}>
+                {selectedOffer.details}
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button onClick={() => setSelectedOffer(null)} className="btn btn-primary">
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

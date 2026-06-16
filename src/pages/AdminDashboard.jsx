@@ -143,7 +143,8 @@ export default function AdminDashboard() {
     brandSettings: { id: 1, brandName: '', logoUrl: '', accentColor: '#f64851', bgCremita: '#ebe8e2', bgWhite: '#ffffff', textCharcoal: '#393939', textBlack: '#000000', borderColor: '#d1cec7' },
     contactSettings: { id: 1, address: '', phone: '', schedule: '', facebook: '', instagram: '', footerText: '' },
     hero: { id: 1, title: '', subtitle: '', imageUrl: '' },
-    locations: []
+    locations: [],
+    offers: []
   });
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -151,6 +152,9 @@ export default function AdminDashboard() {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingLoc, setEditingLoc] = useState(null);
+
+  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
+  const [editingOffer, setEditingOffer] = useState(null);
 
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
   const [editingLead, setEditingLead] = useState(null);
@@ -196,6 +200,7 @@ export default function AdminDashboard() {
     if (tableName === 'brand_settings') return 'brandSettings';
     if (tableName === 'hero_settings') return 'hero';
     if (tableName === 'contact_settings') return 'contactSettings';
+    if (tableName === 'offers') return 'offers';
     return tableName;
   };
 
@@ -205,8 +210,8 @@ export default function AdminDashboard() {
 
     setCmsData(prev => ({
       ...prev,
-      [stateKey]: stateKey === 'locations'
-        ? prev.locations.map(loc => loc.id === entityId ? { ...loc, [targetField]: value } : loc)
+      [stateKey]: stateKey === 'locations' || stateKey === 'offers'
+        ? prev[stateKey].map(item => item.id === entityId ? { ...item, [targetField]: value } : item)
         : { ...prev[stateKey], [targetField]: value }
     }));
 
@@ -317,6 +322,56 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleAddOffer = async () => {
+    setSavingStatus('creando...');
+    try {
+      const response = await fetch('/api/cms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'create_offer' })
+      });
+      const result = await response.json();
+      if (result.success) {
+        setCmsData(prev => ({
+          ...prev,
+          offers: [...prev.offers, result.data]
+        }));
+        setEditingOffer(result.data);
+        setIsOfferModalOpen(true);
+        setSavingStatus('guardado');
+        setTimeout(() => setSavingStatus(null), 1500);
+      }
+    } catch (err) {
+      setSavingStatus('error');
+      setTimeout(() => setSavingStatus(null), 2500);
+    }
+  };
+
+  const handleDeleteOffer = async (id) => {
+    if (!window.confirm('¿Estás seguro de eliminar esta oferta?')) return;
+    setSavingStatus('eliminando...');
+    try {
+      const response = await fetch('/api/cms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete_offer', entityId: id })
+      });
+      const result = await response.json();
+      if (result.success) {
+        setCmsData(prev => ({
+          ...prev,
+          offers: prev.offers.filter(o => o.id !== id)
+        }));
+        setSavingStatus('guardado');
+        setIsOfferModalOpen(false);
+        setTimeout(() => setSavingStatus(null), 1500);
+      }
+    } catch (err) {
+      setSavingStatus('error');
+      setTimeout(() => setSavingStatus(null), 2500);
+    }
+  };
+
   const handleImageUploadConfirm = async (dataUrl, entityId, targetField, tableName) => {
     setSavingStatus('subiendo a Cloudinary...');
     try {
@@ -336,10 +391,13 @@ export default function AdminDashboard() {
         if (stateKey === 'locations' && editingLoc && editingLoc.id === entityId) {
           setEditingLoc(prev => ({ ...prev, [targetField]: result.url }));
         }
+        if (stateKey === 'offers' && editingOffer && editingOffer.id === entityId) {
+          setEditingOffer(prev => ({ ...prev, [targetField]: result.url }));
+        }
         setCmsData(prev => ({
           ...prev,
-          [stateKey]: stateKey === 'locations'
-            ? prev.locations.map(loc => loc.id === entityId ? { ...loc, [targetField]: result.url } : loc)
+          [stateKey]: stateKey === 'locations' || stateKey === 'offers'
+            ? prev[stateKey].map(item => item.id === entityId ? { ...item, [targetField]: result.url } : item)
             : { ...prev[stateKey], [targetField]: result.url }
         }));
         setSavingStatus('imagen subida');
@@ -376,10 +434,13 @@ export default function AdminDashboard() {
         if (stateKey === 'locations' && editingLoc && editingLoc.id === entityId) {
           setEditingLoc(prev => ({ ...prev, [targetField]: '' }));
         }
+        if (stateKey === 'offers' && editingOffer && editingOffer.id === entityId) {
+          setEditingOffer(prev => ({ ...prev, [targetField]: '' }));
+        }
         setCmsData(prev => ({
           ...prev,
-          [stateKey]: stateKey === 'locations'
-            ? prev.locations.map(loc => loc.id === entityId ? { ...loc, [targetField]: '' } : loc)
+          [stateKey]: stateKey === 'locations' || stateKey === 'offers'
+            ? prev[stateKey].map(item => item.id === entityId ? { ...item, [targetField]: '' } : item)
             : { ...prev[stateKey], [targetField]: '' }
         }));
         setSavingStatus('guardado');
@@ -471,6 +532,7 @@ export default function AdminDashboard() {
     { id: 'branding', label: 'Identidad y Logo' },
     { id: 'hero', label: 'Sección Hero' },
     { id: 'locations', label: 'Sucursales y Mapas' },
+    { id: 'offers', label: 'Ofertas y Promociones' },
     { id: 'footer', label: 'Footer y Contacto' }
   ];
 
@@ -537,9 +599,6 @@ export default function AdminDashboard() {
           <div className="admin-card">
             <div className="admin-card-header">
               <h3>Ajustes de Identidad Visual</h3>
-              <p style={{ color: 'var(--text-charcoal)', fontSize: '0.9rem', marginTop: '0.5rem' }}>
-                Haz clic en el cuadro de color para abrir la paleta. Los cambios se guardan al hacer clic fuera del campo.
-              </p>
             </div>
 
             <div className="admin-grid">
@@ -746,6 +805,31 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {activeSection === 'offers' && (
+          <div>
+            <div className="admin-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <h3>Gestión de Ofertas</h3>
+              <button onClick={handleAddOffer} className="btn btn-primary" style={{ padding: '0.5rem 1.5rem', fontSize: '1rem' }}>
+                + Añadir Oferta
+              </button>
+            </div>
+            
+            <div className="list-grid">
+              {cmsData.offers?.map((offer) => (
+                <div key={offer.id} className="location-item">
+                  <h4>{offer.title}</h4>
+                  <p>{offer.description}</p>
+                  <div className="location-item-actions">
+                    <button onClick={() => { setEditingOffer(offer); setIsOfferModalOpen(true); }} className="btn-edit" style={{ flex: 1 }}>
+                      Editar Datos / Imagen
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {activeSection === 'leads' && (
           <div className="admin-card data-table-wrapper" style={{ padding: 0, overflow: 'hidden' }}>
             <div className="admin-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem 2rem', margin: 0, borderBottom: '1px solid var(--border-color)' }}>
@@ -904,6 +988,78 @@ export default function AdminDashboard() {
                 Eliminar Sucursal Definitivamente
               </button>
               <button onClick={() => setIsModalOpen(false)} className="btn btn-primary">
+                Cerrar y Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isOfferModalOpen && editingOffer && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Editar Oferta: {editingOffer.title}</h3>
+              <button onClick={() => setIsOfferModalOpen(false)} className="btn-close">×</button>
+            </div>
+            <div className="modal-body">
+              <div className="admin-grid">
+                <div className="admin-stack">
+                  <div className="form-group">
+                    <label className="form-label">Título de la Oferta</label>
+                    <input 
+                      type="text" 
+                      defaultValue={editingOffer.title} 
+                      onBlur={(e) => {
+                        handleUpdate('offers', 'title', e.target.value, editingOffer.id);
+                        setEditingOffer({...editingOffer, title: e.target.value});
+                      }} 
+                      className="form-input" 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Descripción Corta</label>
+                    <input 
+                      type="text" 
+                      defaultValue={editingOffer.description} 
+                      onBlur={(e) => {
+                        handleUpdate('offers', 'description', e.target.value, editingOffer.id);
+                        setEditingOffer({...editingOffer, description: e.target.value});
+                      }} 
+                      className="form-input" 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Detalles Adicionales (Modal)</label>
+                    <textarea 
+                      defaultValue={editingOffer.details} 
+                      onBlur={(e) => {
+                        handleUpdate('offers', 'details', e.target.value, editingOffer.id);
+                        setEditingOffer({...editingOffer, details: e.target.value});
+                      }} 
+                      className="form-input" 
+                      rows={6}
+                    ></textarea>
+                  </div>
+                </div>
+                <div className="admin-stack">
+                  <div className="form-group">
+                    <label className="form-label">Imagen Horizontal de la Oferta</label>
+                    <ImageDropzone 
+                      currentImage={editingOffer.imageUrl}
+                      onUpload={(dataUrl) => handleImageUploadConfirm(dataUrl, editingOffer.id, 'imageUrl', 'offers')}
+                      onRemove={() => handleDeleteImage(editingOffer.imageUrl, editingOffer.id, 'imageUrl', 'offers')}
+                      placeholderText="Arrastra la foto horizontal aquí"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button onClick={() => handleDeleteOffer(editingOffer.id)} className="btn-delete">
+                Eliminar Oferta Definitivamente
+              </button>
+              <button onClick={() => setIsOfferModalOpen(false)} className="btn btn-primary">
                 Cerrar y Guardar
               </button>
             </div>

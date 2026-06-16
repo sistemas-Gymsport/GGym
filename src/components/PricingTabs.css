@@ -3,7 +3,6 @@
   flex-direction: column;
   align-items: center;
 }
-
 .tabs-nav {
   display: flex;
   justify-content: center;
@@ -11,7 +10,6 @@
   margin-bottom: 2.5rem;
   flex-wrap: wrap;
 }
-
 .tab-btn {
   display: inline-flex;
   align-items: center;
@@ -26,38 +24,31 @@
   cursor: pointer;
   transition: all 0.3s ease;
 }
-
 .tab-icon {
   width: 16px;
   height: 16px;
   opacity: 0.6;
 }
-
 .tab-btn:hover {
   background-color: var(--bg-cremita);
   color: var(--text-black);
 }
-
 .tab-btn.active {
   background-color: var(--brand-coral);
   color: var(--bg-white);
   border-color: var(--brand-coral);
 }
-
 .tab-btn.active .tab-icon {
   opacity: 1;
 }
-
 .tab-content-wrapper {
   width: 100%;
   animation: fadeInTab 0.3s ease-out;
 }
-
 @keyframes fadeInTab {
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
 @media (max-width: 768px) {
   .tabs-nav {
     flex-direction: column;

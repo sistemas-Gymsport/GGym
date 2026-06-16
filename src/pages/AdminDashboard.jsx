@@ -576,6 +576,16 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="form-group">
+                  <label className="form-label">Texto del Footer</label>
+                  <input 
+                    type="text" 
+                    defaultValue={cmsData.contactSettings?.footerText || ''} 
+                    onBlur={(e) => handleUpdate('contact_settings', 'footerText', e.target.value, cmsData.contactSettings.id)} 
+                    className="form-input" 
+                  />
+                </div>
+
+                <div className="form-group">
                   <label className="form-label">Paleta de Colores</label>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

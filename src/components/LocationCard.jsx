@@ -67,10 +67,19 @@ export default function LocationCard({ location }) {
 
   return (
     <div className="location-card-modern">
+      
+      {/* NUEVA SECCIÓN DE IMAGEN CON EFECTO BLUR */}
       <div className="location-image-wrapper">
         <img
           src={location.imageUrl || "/default-location.jpg"}
+          alt=""
+          className="location-image-bg"
+          aria-hidden="true"
+        />
+        <img
+          src={location.imageUrl || "/default-location.jpg"}
           alt={`Instalaciones en ${location.name}`}
+          className="location-image-main"
         />
       </div>
 
@@ -105,11 +114,11 @@ export default function LocationCard({ location }) {
 
         {mainWaLink ? (
           <a href={mainWaLink} target="_blank" rel="noopener noreferrer" className="cta-button">
-            COTIZAR EN {location.name}
+            Solicitar Información
           </a>
         ) : (
           <Link to="/contacto" className="cta-button">
-            COTIZAR EN {location.name}
+            Solicitar Información
           </Link>
         )}
       </div>

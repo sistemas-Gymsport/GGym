@@ -1,10 +1,10 @@
-/* ============================================
-   LOCATION CARD – imagen completa, sin recorte
-   ============================================ */
+/* ================================================
+   LOCATION CARD – layout vertical, imagen completa
+   ================================================ */
 
 .location-card-modern {
   display: flex;
-  flex-direction: column;
+  flex-direction: column;          /* vertical siempre */
   background-color: var(--bg-white);
   border-radius: 1.25rem;
   overflow: hidden;
@@ -13,27 +13,30 @@
   transition: transform 0.3s ease;
   max-width: 860px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .location-card-modern:hover {
   transform: translateY(-4px);
 }
 
-/* --- imagen --- */
+/* ── IMAGEN: nunca se recorta ── */
 .location-image-wrapper {
   position: relative;
   width: 100%;
   background-color: var(--bg-cremita);
+  /* SIN height fija, SIN grid */
 }
 
 .location-image-wrapper img {
-  width: 100%;
-  height: auto;           /* ← respeta las proporciones originales */
   display: block;
+  width: 100%;
+  height: auto;           /* respeta proporción original */
   object-fit: contain;   /* nunca recorta */
+  object-position: center;
 }
 
-/* badge flotante sobre la imagen */
+/* badge flotante */
 .location-badge {
   position: absolute;
   top: 1rem;
@@ -57,7 +60,7 @@
   height: 14px;
 }
 
-/* --- contenido debajo de la imagen --- */
+/* ── CONTENIDO debajo de la imagen ── */
 .location-content-modern {
   padding: 2rem 2.5rem 2.5rem;
   display: flex;
@@ -113,15 +116,16 @@
   line-height: 1;
 }
 
-/* grid de dos columnas para info + mapa */
+/* grid info + mapa */
 .location-bottom-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
   align-items: start;
+  margin-bottom: 0;
 }
 
-/* info / amenidades */
+/* amenidades */
 .location-info-grid {
   display: flex;
   flex-direction: column;
@@ -188,6 +192,9 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* whatsapp */
@@ -213,17 +220,15 @@
 
 .wa-icon { width: 18px; height: 18px; }
 
-/* ---- responsive ---- */
+/* ── responsive ── */
 @media (max-width: 768px) {
   .location-content-modern {
     padding: 1.5rem;
   }
-
   .location-bottom-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
-
   .location-map-container {
     height: 220px;
   }

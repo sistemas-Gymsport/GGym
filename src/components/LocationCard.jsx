@@ -8,7 +8,7 @@ export default function LocationCard({ location }) {
 
     return lines.map((line, index) => {
       let trimmed = line.trim();
-      
+
       if (trimmed === '') {
         return <div key={index} className="location-spacer"></div>;
       }
@@ -18,14 +18,14 @@ export default function LocationCard({ location }) {
       }
 
       if (trimmed.endsWith(':')) {
-         return <h4 key={index} className="location-subheader">{trimmed}</h4>;
+        return <h4 key={index} className="location-subheader">{trimmed}</h4>;
       }
 
       if (trimmed.includes(':') && !trimmed.startsWith('http')) {
         const colonIndex = trimmed.indexOf(':');
         const label = trimmed.substring(0, colonIndex).trim();
         const rest = trimmed.substring(colonIndex + 1).trim();
-        
+
         if (label.toLowerCase() === 'whatsapp') {
           const cleanNumber = rest.replace(/\D/g, '');
           const waNumber = cleanNumber.length === 10 ? `52${cleanNumber}` : cleanNumber;
@@ -64,8 +64,12 @@ export default function LocationCard({ location }) {
     });
   };
 
+  const hasMap = !!location.mapEmbedCode;
+
   return (
     <div className="location-card-modern">
+
+      {/* ── IMAGEN COMPLETA ── */}
       <div className="location-image-wrapper">
         <img
           src={location.imageUrl || "/default-location.jpg"}
@@ -79,8 +83,11 @@ export default function LocationCard({ location }) {
           {location.name}
         </div>
       </div>
-      
+
+      {/* ── CONTENIDO ── */}
       <div className="location-content-modern">
+
+        {/* Encabezado */}
         <div className="location-header">
           <h3>{location.name}</h3>
           <p className="address-text">
@@ -91,26 +98,34 @@ export default function LocationCard({ location }) {
             {location.address}
           </p>
         </div>
-        
+
+        {/* Precio */}
         <div className="price-highlight-box">
           <span className="price-subtitle">Planes Destacados</span>
           <span className="price-main">{location.price}</span>
         </div>
 
-        <div className="location-info-grid">
-          {formatText(location.amenities)}
+        {/* Info + Mapa en dos columnas (o solo info si no hay mapa) */}
+        <div className={`location-bottom-grid${hasMap ? '' : ' no-map'}`}
+             style={!hasMap ? { gridTemplateColumns: '1fr' } : {}}>
+
+          <div className="location-info-grid">
+            {formatText(location.amenities)}
+          </div>
+
+          {hasMap && (
+            <div
+              className="location-map-container"
+              dangerouslySetInnerHTML={{ __html: location.mapEmbedCode }}
+            />
+          )}
         </div>
 
-        {location.mapEmbedCode && (
-          <div 
-            className="location-map-container"
-            dangerouslySetInnerHTML={{ __html: location.mapEmbedCode }}
-          />
-        )}
-        
-        <Link to="/contacto" className="btn btn-primary btn-block cta-button">
+        {/* CTA */}
+        <Link to="/contacto" className="btn btn-primary cta-button">
           Solicitar en {location.name}
         </Link>
+
       </div>
     </div>
   );

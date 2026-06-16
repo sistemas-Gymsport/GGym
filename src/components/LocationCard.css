@@ -1,41 +1,39 @@
+/* ============================================
+   LOCATION CARD – imagen completa, sin recorte
+   ============================================ */
+
 .location-card-modern {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
+  display: flex;
+  flex-direction: column;
   background-color: var(--bg-white);
   border-radius: 1.25rem;
   overflow: hidden;
   box-shadow: 0 10px 25px rgba(0,0,0,0.08);
   border: 1px solid var(--border-color);
   transition: transform 0.3s ease;
-  max-width: 1000px;
+  max-width: 860px;
   margin: 0 auto;
-  align-items: stretch;
 }
 
 .location-card-modern:hover {
   transform: translateY(-4px);
 }
 
+/* --- imagen --- */
 .location-image-wrapper {
   position: relative;
   width: 100%;
-  height: 100%;
   background-color: var(--bg-cremita);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3.5rem 1.5rem 1.5rem 1.5rem;
-  box-sizing: border-box;
 }
 
 .location-image-wrapper img {
   width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center;
+  height: auto;           /* ← respeta las proporciones originales */
   display: block;
+  object-fit: contain;   /* nunca recorta */
 }
 
+/* badge flotante sobre la imagen */
 .location-badge {
   position: absolute;
   top: 1rem;
@@ -59,8 +57,9 @@
   height: 14px;
 }
 
+/* --- contenido debajo de la imagen --- */
 .location-content-modern {
-  padding: 2.5rem;
+  padding: 2rem 2.5rem 2.5rem;
   display: flex;
   flex-direction: column;
 }
@@ -86,15 +85,16 @@
   opacity: 0.8;
 }
 
+/* precio */
 .price-highlight-box {
   background: linear-gradient(145deg, #fff5f5, #ffeaea);
   border: 1px solid rgba(246, 72, 81, 0.2);
+  border-left: 4px solid var(--brand-coral);
   border-radius: 0.75rem;
   padding: 1rem 1.25rem;
   margin-bottom: 1.5rem;
   display: flex;
   flex-direction: column;
-  border-left: 4px solid var(--brand-coral);
 }
 
 .price-subtitle {
@@ -113,18 +113,23 @@
   line-height: 1;
 }
 
+/* grid de dos columnas para info + mapa */
+.location-bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* info / amenidades */
 .location-info-grid {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  margin-bottom: 2rem;
-  flex: 1;
   font-size: 0.9rem;
 }
 
-.location-spacer {
-  height: 0.75rem;
-}
+.location-spacer { height: 0.75rem; }
 
 .location-subheader {
   color: var(--brand-coral);
@@ -143,16 +148,8 @@
   border-bottom: 1px dashed var(--border-color);
 }
 
-.detail-label {
-  font-weight: 700;
-  color: var(--text-black);
-}
-
-.detail-value {
-  font-weight: 500;
-  color: var(--text-charcoal);
-  text-align: right;
-}
+.detail-label { font-weight: 700; color: var(--text-black); }
+.detail-value { font-weight: 500; color: var(--text-charcoal); text-align: right; }
 
 .location-list-item {
   display: flex;
@@ -169,12 +166,12 @@
   margin-top: 0.15rem;
 }
 
+/* mapa */
 .location-map-container {
-  margin-bottom: 2rem;
   border-radius: 0.75rem;
   overflow: hidden;
   border: 1px solid var(--border-color);
-  height: 250px;
+  height: 260px;
 }
 
 .location-map-container iframe {
@@ -183,14 +180,17 @@
   border: none;
 }
 
+/* CTA */
 .cta-button {
-  margin-top: auto;
+  margin-top: 2rem;
   padding: 1rem;
   font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  width: 100%;
 }
 
+/* whatsapp */
 .wa-link-button {
   display: inline-flex;
   align-items: center;
@@ -211,21 +211,20 @@
   color: #ffffff !important;
 }
 
-.wa-icon {
-  width: 18px;
-  height: 18px;
-}
+.wa-icon { width: 18px; height: 18px; }
 
-@media (max-width: 992px) {
-  .location-card-modern {
-    grid-template-columns: 1fr;
-  }
-  
-  .location-image-wrapper {
-    min-height: 400px;
-  }
-
+/* ---- responsive ---- */
+@media (max-width: 768px) {
   .location-content-modern {
     padding: 1.5rem;
+  }
+
+  .location-bottom-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .location-map-container {
+    height: 220px;
   }
 }

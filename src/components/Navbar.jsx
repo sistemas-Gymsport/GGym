@@ -21,7 +21,6 @@ export default function Navbar({ brandSettings }) {
           <Link to="/">Inicio</Link>
           <Link to="/sucursales">Sucursales</Link>
           <Link to="/ofertas">Ofertas</Link>
-          <Link to="/precios">Planes</Link>
         </div>
         <div className="nav-action">
           <Link to="/contacto" className="btn btn-primary" style={{ padding: '0.6rem 1.5rem' }}>

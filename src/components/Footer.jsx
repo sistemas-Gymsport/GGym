@@ -53,7 +53,6 @@ export default function Footer({ brandSettings, contactSettings }) {
               <ul>
                 <li><Link to="/">Inicio</Link></li>
                 <li><Link to="/sucursales">Sucursales</Link></li>
-                <li><Link to="/precios">Planes</Link></li>
               </ul>
             </div>
             <div>

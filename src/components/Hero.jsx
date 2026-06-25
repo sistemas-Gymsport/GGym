@@ -18,9 +18,7 @@ export default function Hero({ title, subtitle, imageUrl }) {
           <Link to="/sucursales" className="btn btn-primary">
             Ver sucursales
           </Link>
-          <Link to="/precios" className="btn btn-secondary">
-            Conoce los planes
-          </Link>
+          
         </div>
       </div>
       <img

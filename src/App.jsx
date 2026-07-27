@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Home from './pages/Home';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
+import ChatbotWhatsAppViewer from './pages/ChatbotWhatsAppViewer';
 
 const PrivateRoute = ({ children }) => {
   const isAuthenticated = !!localStorage.getItem('geo_gym_session');
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="/precios" element={<Home />} />
         <Route path="/contacto" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        
         <Route 
           path="/admin" 
           element={
@@ -25,6 +27,16 @@ export default function App() {
             </PrivateRoute>
           } 
         />
+        
+        <Route 
+          path="/admin/chatbotgeogym" 
+          element={
+            <PrivateRoute>
+              <ChatbotWhatsAppViewer />
+            </PrivateRoute>
+          } 
+        />
+        
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>

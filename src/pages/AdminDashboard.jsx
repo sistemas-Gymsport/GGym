@@ -146,7 +146,6 @@ export default function AdminDashboard() {
     locations: [],
     offers: []
   });
-  const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [savingStatus, setSavingStatus] = useState(null);
   
@@ -156,10 +155,6 @@ export default function AdminDashboard() {
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const [editingOffer, setEditingOffer] = useState(null);
 
-  const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
-  const [editingLead, setEditingLead] = useState(null);
-
-  // Estado para el modal de doble confirmación
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
     step: 1,
@@ -192,10 +187,6 @@ export default function AdminDashboard() {
       const res = await fetch('/api/cms');
       const result = await res.json();
       if (result.success) setCmsData(result.data);
-      
-      const leadsRes = await fetch('/api/lead');
-      const leadsResult = await leadsRes.json();
-      if (leadsResult.success) setLeads(leadsResult.data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -248,7 +239,6 @@ export default function AdminDashboard() {
     }));
   };
 
-  // Disparador genérico para el Modal de Confirmación Doble
   const requestDelete = (onConfirm, title, message1) => {
     setConfirmModal({
       isOpen: true,
@@ -472,78 +462,14 @@ export default function AdminDashboard() {
     setIsModalOpen(true);
   };
 
-  const openLeadModal = (lead = null) => {
-    if (lead) {
-      setEditingLead(lead);
-    } else {
-      setEditingLead({ name: '', email: '', phone: '', location: '' });
-    }
-    setIsLeadModalOpen(true);
-  };
-
-  const handleSaveLead = async (e) => {
-    e.preventDefault();
-    setSavingStatus('guardando...');
-    try {
-      const isUpdate = !!editingLead.id;
-      const payload = isUpdate
-        ? { action: 'update', ...editingLead }
-        : { ...editingLead };
-
-      const response = await fetch('/api/lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const result = await response.json();
-      if (result.success) {
-        if (isUpdate) {
-          setLeads(leads.map(l => l.id === result.data.id ? result.data : l));
-        } else {
-          setLeads([result.data, ...leads]);
-        }
-        setIsLeadModalOpen(false);
-        setSavingStatus('guardado');
-        setTimeout(() => setSavingStatus(null), 1500);
-      } else {
-        throw new Error('Error API');
-      }
-    } catch (err) {
-      setSavingStatus('error');
-      setTimeout(() => setSavingStatus(null), 2500);
-    }
-  };
-
-  const handleDeleteLead = async (id) => {
-    setSavingStatus('eliminando...');
-    try {
-      const response = await fetch('/api/lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'delete', id })
-      });
-      const result = await response.json();
-      if (result.success) {
-        setLeads(leads.filter(l => l.id !== id));
-        setIsLeadModalOpen(false);
-        setSavingStatus('guardado');
-        setTimeout(() => setSavingStatus(null), 1500);
-      } else {
-        throw new Error('Error API');
-      }
-    } catch (err) {
-      setSavingStatus('error');
-      setTimeout(() => setSavingStatus(null), 2500);
-    }
-  };
-
   const menuItems = [
     { id: 'dashboard', label: 'Resumen / Dashboard' },
     { id: 'branding', label: 'Identidad y Logo' },
     { id: 'hero', label: 'Sección Hero' },
     { id: 'locations', label: 'Sucursales y Mapas' },
     { id: 'offers', label: 'Ofertas y Promociones' },
-    { id: 'footer', label: 'Footer y Contacto' }
+    { id: 'footer', label: 'Footer y Contacto' },
+    { id: 'chatbot', label: 'Registros del Chatbot', isExternalRoute: true, path: '/admin/chatbotgeogym' }
   ];
 
   if (loading || !cmsData) return <div style={{ padding: '5rem', textAlign: 'center', fontSize: '1.5rem', fontWeight: 'bold' }}>Cargando Panel GEO GYM...</div>;
@@ -562,7 +488,13 @@ export default function AdminDashboard() {
           {menuItems.map(item => (
             <button 
               key={item.id} 
-              onClick={() => setActiveSection(item.id)} 
+              onClick={() => {
+                if (item.isExternalRoute) {
+                  navigate(item.path);
+                } else {
+                  setActiveSection(item.id);
+                }
+              }} 
               className={`admin-nav-btn ${activeSection === item.id ? 'active' : ''}`}
             >
               {item.label}
@@ -604,10 +536,6 @@ export default function AdminDashboard() {
               <div className="stat-card">
                 <h3>Total Ofertas</h3>
                 <p>{cmsData.offers?.length || 0}</p>
-              </div>
-              <div className="stat-card">
-                <h3>Total Prospectos</h3>
-                <p>{leads.length}</p>
               </div>
             </div>
           </div>
@@ -847,48 +775,8 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
-
-        {activeSection === 'leads' && (
-          <div className="admin-card data-table-wrapper" style={{ padding: 0, overflow: 'hidden' }}>
-            <div className="admin-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem 2rem', margin: 0, borderBottom: '1px solid var(--border-color)' }}>
-              <h3 style={{ margin: 0 }}>Registro de Prospectos</h3>
-              <button onClick={() => openLeadModal()} className="btn btn-primary" style={{ padding: '0.5rem 1.5rem', fontSize: '1rem' }}>
-                + Añadir Prospecto
-              </button>
-            </div>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Correo Electrónico</th>
-                  <th>Teléfono</th>
-                  <th>Sucursal</th>
-                  <th>Fecha Registro</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {leads.map(lead => (
-                  <tr key={lead.id}>
-                    <td><strong>{lead.name}</strong></td>
-                    <td>{lead.email}</td>
-                    <td>{lead.phone}</td>
-                    <td>{lead.location}</td>
-                    <td>{new Date(lead.created_at).toLocaleDateString()}</td>
-                    <td>
-                      <button onClick={() => openLeadModal(lead)} className="btn-edit" style={{ padding: '0.25rem 0.75rem', fontSize: '0.8rem' }}>
-                        Editar
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
       </main>
 
-      {/* Modal Genérico de Doble Confirmación ("Segurísimo") */}
       {confirmModal.isOpen && (
         <div className="modal-overlay" style={{ zIndex: 9999 }}>
           <div className="modal-content modal-alert" style={{ maxWidth: '400px', textAlign: 'center' }}>
@@ -941,7 +829,6 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Modal de Sucursales */}
       {isModalOpen && editingLoc && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -1039,7 +926,6 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Modal de Ofertas */}
       {isOfferModalOpen && editingOffer && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -1112,73 +998,6 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Modal de Prospectos */}
-      {isLeadModalOpen && editingLead && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '600px' }}>
-            <div className="modal-header">
-              <h3>{editingLead.id ? 'Editar Prospecto' : 'Añadir Nuevo Prospecto'}</h3>
-              <button onClick={() => setIsLeadModalOpen(false)} className="btn-close">×</button>
-            </div>
-            <form onSubmit={handleSaveLead}>
-              <div className="modal-body">
-                <div className="form-group">
-                  <label className="form-label">Nombre Completo</label>
-                  <input 
-                    type="text" 
-                    required 
-                    value={editingLead.name} 
-                    onChange={(e) => setEditingLead({...editingLead, name: e.target.value})} 
-                    className="form-input" 
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Correo Electrónico</label>
-                  <input 
-                    type="email" 
-                    required 
-                    value={editingLead.email} 
-                    onChange={(e) => setEditingLead({...editingLead, email: e.target.value})} 
-                    className="form-input" 
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Teléfono</label>
-                  <input 
-                    type="tel" 
-                    value={editingLead.phone} 
-                    onChange={(e) => setEditingLead({...editingLead, phone: e.target.value})} 
-                    className="form-input" 
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Sucursal de Interés</label>
-                  <select 
-                    value={editingLead.location} 
-                    onChange={(e) => setEditingLead({...editingLead, location: e.target.value})} 
-                    className="form-input"
-                  >
-                    <option value="">Seleccione una sucursal</option>
-                    {cmsData.locations.map(loc => (
-                      <option key={loc.id} value={loc.name}>{loc.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div className="modal-footer">
-                {editingLead.id && (
-                  <button type="button" onClick={() => requestDelete(() => handleDeleteLead(editingLead.id), 'Eliminar Prospecto', '¿Estás seguro de eliminar este prospecto?')} className="btn-delete">
-                    Eliminar Prospecto
-                  </button>
-                )}
-                <button type="submit" className="btn btn-primary">
-                  Guardar Datos
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

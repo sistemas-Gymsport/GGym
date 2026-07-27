@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useId } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ChatbotWhatsAppViewer from './ChatbotWhatsAppViewer';
 
 const defaultColors = {
   accentColor: '#f64851',
@@ -160,6 +159,7 @@ export default function AdminDashboard() {
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
   const [editingLead, setEditingLead] = useState(null);
 
+  // Estado para el modal de doble confirmación
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
     step: 1,
@@ -248,6 +248,7 @@ export default function AdminDashboard() {
     }));
   };
 
+  // Disparador genérico para el Modal de Confirmación Doble
   const requestDelete = (onConfirm, title, message1) => {
     setConfirmModal({
       isOpen: true,
@@ -542,8 +543,7 @@ export default function AdminDashboard() {
     { id: 'hero', label: 'Sección Hero' },
     { id: 'locations', label: 'Sucursales y Mapas' },
     { id: 'offers', label: 'Ofertas y Promociones' },
-    { id: 'footer', label: 'Footer y Contacto' },
-    { id: 'chatbot', label: 'Registros del Chatbot' }
+    { id: 'footer', label: 'Footer y Contacto' }
   ];
 
   if (loading || !cmsData) return <div style={{ padding: '5rem', textAlign: 'center', fontSize: '1.5rem', fontWeight: 'bold' }}>Cargando Panel GEO GYM...</div>;
@@ -886,15 +886,9 @@ export default function AdminDashboard() {
             </table>
           </div>
         )}
-
-        {activeSection === 'chatbot' && (
-          <div className="p-0">
-            <ChatbotWhatsAppViewer />
-          </div>
-        )}
-
       </main>
 
+      {/* Modal Genérico de Doble Confirmación ("Segurísimo") */}
       {confirmModal.isOpen && (
         <div className="modal-overlay" style={{ zIndex: 9999 }}>
           <div className="modal-content modal-alert" style={{ maxWidth: '400px', textAlign: 'center' }}>
@@ -947,6 +941,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
+      {/* Modal de Sucursales */}
       {isModalOpen && editingLoc && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -1044,6 +1039,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
+      {/* Modal de Ofertas */}
       {isOfferModalOpen && editingOffer && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -1116,6 +1112,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
+      {/* Modal de Prospectos */}
       {isLeadModalOpen && editingLead && (
         <div className="modal-overlay">
           <div className="modal-content" style={{ maxWidth: '600px' }}>

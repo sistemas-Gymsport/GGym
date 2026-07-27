@@ -6,8 +6,6 @@ export default async function handler(req, res) {
   try {
     const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL;
     const N8N_API_KEY = process.env.N8N_API_KEY;
-
-    // Validación para asegurar que las variables de entorno se están leyendo
     if (!N8N_WEBHOOK_URL || !N8N_API_KEY) {
       console.error("Faltan variables de entorno en Vercel");
       return res.status(500).json({ error: 'Configuración de servidor incompleta' });
@@ -17,7 +15,6 @@ export default async function handler(req, res) {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        // ¡OJO AQUÍ! Este nombre debe coincidir exactamente con el campo "Name" en n8n
         'chat-geogym-whatsapp': N8N_API_KEY, 
       },
     });

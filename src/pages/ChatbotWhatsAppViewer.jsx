@@ -14,23 +14,17 @@ export default function ChatbotWhatsAppViewer() {
     const fetchLogs = async () => {
       try {
         const res = await fetch('/api/chatbot-logs');
-        
         if (!res.ok) {
-          throw new Error(`Error del servidor: ${res.status}`);
+          throw new Error('Server error');
         }
-
         const data = await res.json();
-        
-        // Validación estricta: Si no es un array, asignamos un array vacío
         if (Array.isArray(data)) {
           setLogs(data);
         } else {
-          console.error("La respuesta de la API no es un arreglo válido:", data);
           setLogs([]);
         }
       } catch (error) {
-        console.error("Error al obtener los logs del chatbot:", error);
-        setLogs([]); // Evita que el .forEach() rompa la página
+        setLogs([]);
       } finally {
         setLoading(false);
       }
@@ -59,17 +53,20 @@ export default function ChatbotWhatsAppViewer() {
   const groupedChats = useMemo(() => {
     const groups = {};
     logs.forEach(log => {
-      if (!groups[log.numero]) {
-        groups[log.numero] = {
-          numero: log.numero,
-          nombre: log.nombre || 'Desconocido',
+      const numStr = log.numero ? String(log.numero) : 'Sin Numero';
+      const nomStr = log.nombre ? String(log.nombre) : 'Desconocido';
+      
+      if (!groups[numStr]) {
+        groups[numStr] = {
+          numero: numStr,
+          nombre: nomStr,
           messages: [],
-          lastDate: log.fecha
+          lastDate: log.fecha || new Date().toISOString()
         };
       }
-      groups[log.numero].messages.push(log);
-      if (new Date(log.fecha) > new Date(groups[log.numero].lastDate)) {
-        groups[log.numero].lastDate = log.fecha;
+      groups[numStr].messages.push(log);
+      if (log.fecha && new Date(log.fecha) > new Date(groups[numStr].lastDate)) {
+        groups[numStr].lastDate = log.fecha;
       }
     });
 
@@ -81,11 +78,11 @@ export default function ChatbotWhatsAppViewer() {
     const term = globalSearch.toLowerCase();
     
     return groupedChats.filter(chat => {
-      const matchName = chat.nombre.toLowerCase().includes(term);
-      const matchNumber = chat.numero.toLowerCase().includes(term);
+      const matchName = String(chat.nombre).toLowerCase().includes(term);
+      const matchNumber = String(chat.numero).toLowerCase().includes(term);
       const matchMessages = chat.messages.some(msg => 
-        (msg.mensaje_cliente && msg.mensaje_cliente.toLowerCase().includes(term)) ||
-        (msg.mensaje_ia && msg.mensaje_ia.toLowerCase().includes(term))
+        (msg.mensaje_cliente && String(msg.mensaje_cliente).toLowerCase().includes(term)) ||
+        (msg.mensaje_ia && String(msg.mensaje_ia).toLowerCase().includes(term))
       );
       return matchName || matchNumber || matchMessages;
     });
@@ -101,16 +98,22 @@ export default function ChatbotWhatsAppViewer() {
     const term = chatSearch.toLowerCase();
     
     return activeChat.messages.filter(msg => 
-      (msg.mensaje_cliente && msg.mensaje_cliente.toLowerCase().includes(term)) ||
-      (msg.mensaje_ia && msg.mensaje_ia.toLowerCase().includes(term))
+      (msg.mensaje_cliente && String(msg.mensaje_cliente).toLowerCase().includes(term)) ||
+      (msg.mensaje_ia && String(msg.mensaje_ia).toLowerCase().includes(term))
     );
   }, [activeChat, chatSearch]);
 
   const getInitials = (name, number) => {
-    if (name && name !== 'Desconocido' && name !== '.') {
-      return name.substring(0, 2).toUpperCase();
+    const strName = name ? String(name).trim() : '';
+    const strNum = number ? String(number).trim() : '';
+
+    if (strName && strName !== 'Desconocido' && strName !== '.') {
+      return strName.substring(0, 2).toUpperCase();
     }
-    return number.substring(number.length - 2);
+    if (strNum && strNum !== 'Sin Numero') {
+      return strNum.slice(-2);
+    }
+    return 'GG';
   };
 
   if (loading) {
@@ -250,13 +253,13 @@ export default function ChatbotWhatsAppViewer() {
             >
               <div className="flex flex-col gap-2 max-w-3xl mx-auto pb-4">
                 {filteredActiveMessages.map((msg, index) => (
-                  <Fragment key={`${msg.id}-${index}`}>
+                  <Fragment key={`${msg.id || index}-${index}`}>
                     {msg.mensaje_cliente && (
                       <div className="flex justify-start mb-1">
                         <div className={`max-w-[75%] rounded-lg p-2 text-sm shadow-sm relative ${bubbleIn} rounded-tl-none`}>
                           <p className="whitespace-pre-wrap break-words">{msg.mensaje_cliente}</p>
                           <span className={`text-[10px] float-right mt-1 ml-4 ${isDark ? 'text-[#8696a0]' : 'text-[#667781]'}`}>
-                            {new Date(msg.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            {msg.fecha ? new Date(msg.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                           </span>
                         </div>
                       </div>
@@ -267,7 +270,7 @@ export default function ChatbotWhatsAppViewer() {
                           <p className="whitespace-pre-wrap break-words">{msg.mensaje_ia}</p>
                           <div className="flex items-center justify-end float-right mt-1 ml-4 gap-1">
                             <span className={`text-[10px] ${isDark ? 'text-[#85d1b3]' : 'text-[#667781]'}`}>
-                              {new Date(msg.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              {msg.fecha ? new Date(msg.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                             </span>
                             <svg viewBox="0 0 24 24" width="16" height="16" className={isDark ? "text-[#53bdeb]" : "text-[#53bdeb]"}><path fill="currentColor" d="M18.71,7.21a1,1,0,0,0-1.42,0L9.84,14.67,6.71,11.53A1,1,0,1,0,5.29,13l3.84,3.84a1,1,0,0,0,1.42,0l8.16-8.16A1,1,0,0,0,18.71,7.21Z"></path><path fill="currentColor" d="M22.71,7.21a1,1,0,0,0-1.42,0l-8.16,8.16a1,1,0,0,1-1.42,0L10.29,14A1,1,0,0,0,8.88,15.46l2.84,2.84a3,3,0,0,0,4.24,0l8.16-8.16A1,1,0,0,0,22.71,7.21Z"></path></svg>
                           </div>
@@ -282,7 +285,7 @@ export default function ChatbotWhatsAppViewer() {
         ) : (
           <div className="h-full flex flex-col items-center justify-center border-b-8 border-green-500">
             <h1 className="text-3xl font-light mb-4">Chatbot de WhatsApp</h1>
-            <p className={textMuted}>Selecciona un chat del panel lateral para ver el historial de mensajes de la IA.</p>
+            <p className={textMuted}>Selecciona un chat del panel lateral para ver el historial.</p>
           </div>
         )}
       </div>

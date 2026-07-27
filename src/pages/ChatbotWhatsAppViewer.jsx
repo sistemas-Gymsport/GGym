@@ -10,7 +10,6 @@ export default function ChatbotWhatsAppViewer() {
   const [activeChatNumber, setActiveChatNumber] = useState(null);
   const [chatSearch, setChatSearch] = useState('');
   const [showChatSearch, setShowChatSearch] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const navigate = useNavigate();
 
   const fetchLogs = async () => {
@@ -40,6 +39,8 @@ export default function ChatbotWhatsAppViewer() {
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
+
+  const isDark = theme === 'dark';
 
   const formatMessageTime = (dateString) => {
     if (!dateString) return '';
@@ -132,7 +133,13 @@ export default function ChatbotWhatsAppViewer() {
   if (loading && logs.length === 0) {
     return (
       <div className="wa-wrapper" data-theme={theme} style={{justifyContent: 'center', alignItems: 'center'}}>
-        <span>Cargando WhatsApp...</span>
+        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+          <svg style={{animation: 'spin 1s linear infinite', height: '40px', width: '40px', color: '#00a884', marginBottom: '16px'}} viewBox="0 0 24 24">
+            <circle style={{opacity: 0.25}} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+            <path style={{opacity: 0.75}} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span style={{fontSize: '14px', fontWeight: 500, color: 'var(--wa-text-main)'}}>Cargando WhatsApp...</span>
+        </div>
       </div>
     );
   }
@@ -142,109 +149,87 @@ export default function ChatbotWhatsAppViewer() {
       <div className="wa-container">
         
         <div className="wa-sidebar">
-          {showSettings ? (
-            <div className="wa-settings-pane">
-              <div className="wa-settings-header">
-                <button onClick={() => setShowSettings(false)} className="wa-icon-btn">
-                  <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                </button>
-                <h1 className="wa-settings-title">Ajustes</h1>
+          <Fragment>
+            <div className="wa-header">
+              <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+                <span style={{fontWeight: 700, fontSize: '18px', letterSpacing: '0.025em'}}>WhatsApp</span>
               </div>
-              <div className="wa-settings-body">
-                <div className="wa-theme-card">
-                  <span>Tema Oscuro</span>
-                  <button onClick={toggleTheme} className={`wa-toggle ${isDark ? 'dark' : 'light'}`}>
-                    <div className="wa-toggle-thumb"></div>
-                  </button>
-                </div>
+              <div className="wa-header-actions">
+                <button onClick={() => navigate('/admin')} title="Volver al Dashboard" className="wa-icon-btn">
+                  <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                </button>
+                <button onClick={toggleTheme} title={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"} className="wa-icon-btn">
+                  {isDark ? (
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                  ) : (
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                  )}
+                </button>
               </div>
             </div>
-          ) : (
-            <Fragment>
-              <div className="wa-header">
-                <div className="wa-header-title">WhatsApp</div>
-                <div className="wa-header-actions">
-                  <button onClick={() => navigate('/admin')} title="Volver al Dashboard" className="wa-icon-btn">
-                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                  </button>
-                  <button title="Comunidades" className="wa-icon-btn">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm0-14c-1.654 0-3 1.346-3 3s1.346 3 3 3 3-1.346 3-3-1.346-3-3-3zm0 4.5c-.827 0-1.5-.673-1.5-1.5s.673-1.5 1.5-1.5 1.5.673 1.5 1.5-.673 1.5-1.5 1.5zm4.5 5.5c0-1.93-3.166-3-4.5-3s-4.5 1.07-4.5 3v1h9v-1z"></path></svg>
-                  </button>
-                  <button title="Estados" className="wa-icon-btn">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm-2.5-9.5c0 .827-.673 1.5-1.5 1.5S6.5 11.327 6.5 10.5 7.173 9 8 9s1.5.673 1.5 1.5zm5 0c0 .827-.673 1.5-1.5 1.5s-1.5-.673-1.5-1.5.673-1.5 1.5-1.5 1.5.673 1.5 1.5zm1.5 4.5h-8v-1h8v1z"></path></svg>
-                  </button>
-                  <button title="Nuevo chat" className="wa-icon-btn">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M19 3H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2V5c0-1.103-.897-2-2-2zM5 19V5h14l.002 14H5z"></path><path d="M11 7h2v4h4v2h-4v4h-2v-4H7v-2h4z"></path></svg>
-                  </button>
-                  <button onClick={() => setShowSettings(true)} title="Menú" className="wa-icon-btn">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 7a2 2 0 1 0-.001-4.001A2 2 0 0 0 12 7zm0 2a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 9zm0 6a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 15z"></path></svg>
-                  </button>
-                </div>
-              </div>
 
-              <div className="wa-search-container">
-                <div className="wa-search-box">
-                  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" className="wa-icon-btn" style={{padding:0}}><path d="M15.009 13.805h-.636l-.22-.219a5.184 5.184 0 0 0 1.256-3.386 5.207 5.207 0 1 0-5.207 5.208 5.183 5.183 0 0 0 3.385-1.255l.221.22v.635l4.004 3.999 1.194-1.195-3.997-4.007zm-4.808 0a3.605 3.605 0 1 1 0-7.21 3.605 3.605 0 0 1 0 7.21z"></path></svg>
-                  <input 
-                    type="text" 
-                    placeholder="Buscar un chat o iniciar uno nuevo" 
-                    value={globalSearch}
-                    onChange={(e) => setGlobalSearch(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <span className="wa-filter-badge">Todos</span>
-                </div>
+            <div className="wa-search-container">
+              <div className="wa-search-box">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" className="wa-icon-btn" style={{padding:0}}><path d="M15.009 13.805h-.636l-.22-.219a5.184 5.184 0 0 0 1.256-3.386 5.207 5.207 0 1 0-5.207 5.208 5.183 5.183 0 0 0 3.385-1.255l.221.22v.635l4.004 3.999 1.194-1.195-3.997-4.007zm-4.808 0a3.605 3.605 0 1 1 0-7.21 3.605 3.605 0 0 1 0 7.21z"></path></svg>
+                <input 
+                  type="text" 
+                  placeholder="Buscar un chat o mensaje" 
+                  value={globalSearch}
+                  onChange={(e) => setGlobalSearch(e.target.value)}
+                />
               </div>
-
-              <div className="wa-update-btn" onClick={fetchLogs}>
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '16px'}}><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-                <span>Actualizar para ver los cambios</span>
+              <div>
+                <span className="wa-filter-badge">Todos</span>
               </div>
+            </div>
 
-              <div className="wa-chat-list">
-                {filteredChats.map((chat) => {
-                  const lastMessage = chat.messages[chat.messages.length - 1];
-                  const lastText = lastMessage.mensaje_cliente || lastMessage.mensaje_ia;
-                  const isIncoming = !!lastMessage.mensaje_cliente;
-                  
-                  return (
-                    <div 
-                      key={chat.numero}
-                      onClick={() => {
-                        setActiveChatNumber(chat.numero);
-                        setShowChatSearch(false);
-                        setChatSearch('');
-                      }}
-                      className={`wa-chat-item ${activeChatNumber === chat.numero ? 'active' : ''}`}
-                    >
-                      <div className="wa-avatar-container">
-                        <div className="wa-avatar">
-                          {getInitials(chat.nombre, chat.numero)}
-                        </div>
-                      </div>
-                      <div className="wa-chat-info">
-                        <div className="wa-chat-row">
-                          <span className="wa-chat-name">
-                            {chat.nombre !== '.' && chat.nombre !== 'Desconocido' ? chat.nombre : chat.numero}
-                          </span>
-                          <span className="wa-chat-time">
-                            {formatChatListTime(chat.lastDate)}
-                          </span>
-                        </div>
-                        <div className="wa-chat-msg">
-                          {!isIncoming && (
-                            <svg viewBox="0 0 16 15" width="16" height="15" fill="var(--wa-icon-active)" style={{marginRight:'4px', flexShrink:0}}><path d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"></path></svg>
-                          )}
-                          <span style={{overflow:'hidden', textOverflow:'ellipsis'}}>{lastText}</span>
-                        </div>
+            <div className="wa-update-btn" onClick={fetchLogs}>
+              <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '16px'}}><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+              <span style={{fontSize: '16px'}}>Actualizar para ver los cambios</span>
+            </div>
+
+            <div className="wa-chat-list">
+              {filteredChats.map((chat) => {
+                const lastMessage = chat.messages[chat.messages.length - 1];
+                const lastText = lastMessage.mensaje_cliente || lastMessage.mensaje_ia;
+                const isIncoming = !!lastMessage.mensaje_cliente;
+                
+                return (
+                  <div 
+                    key={chat.numero}
+                    onClick={() => {
+                      setActiveChatNumber(chat.numero);
+                      setShowChatSearch(false);
+                      setChatSearch('');
+                    }}
+                    className={`wa-chat-item ${activeChatNumber === chat.numero ? 'active' : ''}`}
+                  >
+                    <div className="wa-avatar-container">
+                      <div className="wa-avatar">
+                        {getInitials(chat.nombre, chat.numero)}
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            </Fragment>
-          )}
+                    <div className="wa-chat-info">
+                      <div className="wa-chat-row">
+                        <span className="wa-chat-name">
+                          {chat.nombre !== '.' && chat.nombre !== 'Desconocido' ? chat.nombre : chat.numero}
+                        </span>
+                        <span className="wa-chat-time">
+                          {formatChatListTime(chat.lastDate)}
+                        </span>
+                      </div>
+                      <div className="wa-chat-msg">
+                        {!isIncoming && (
+                          <svg viewBox="0 0 16 15" width="16" height="15" fill="var(--wa-icon-active)" style={{marginRight:'4px', flexShrink:0}}><path d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"></path></svg>
+                        )}
+                        <span style={{overflow:'hidden', textOverflow:'ellipsis'}}>{lastText}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Fragment>
         </div>
 
         <div className="wa-main-area">

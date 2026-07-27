@@ -14,6 +14,9 @@
   --wa-bubble-out: #d9fdd3;
   --wa-icon-color: #54656f;
   --wa-icon-active: #00a884;
+  --wa-badge-bg: #ffffff;
+  --wa-badge-text: #54656f;
+  --wa-dropdown-bg: #ffffff;
 }
 
 [data-theme="dark"] {
@@ -32,6 +35,9 @@
   --wa-bubble-out: #005c4b;
   --wa-icon-color: #aebac1;
   --wa-icon-active: #00a884;
+  --wa-badge-bg: #182229;
+  --wa-badge-text: #8696a0;
+  --wa-dropdown-bg: #2a3942;
 }
 
 .wa-wrapper {
@@ -162,6 +168,14 @@
   background-color: var(--wa-bg-hover);
 }
 
+.spin-animation {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
 .wa-chat-list {
   flex: 1;
   overflow-y: auto;
@@ -286,17 +300,32 @@
 .wa-messages-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 4px;
   max-width: 800px;
   margin: 0 auto;
   width: 100%;
-  margin-top: auto;
+}
+
+.wa-date-separator {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+  width: 100%;
+}
+
+.wa-date-badge {
+  background-color: var(--wa-badge-bg);
+  color: var(--wa-badge-text);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  text-transform: uppercase;
+  box-shadow: 0 1px 1px rgba(11,20,26,.1);
 }
 
 .wa-msg-row {
   display: flex;
   width: 100%;
-  margin-bottom: 2px;
+  margin-bottom: 3.5rem;
 }
 
 .wa-msg-row.incoming {
@@ -310,10 +339,10 @@
 .wa-bubble {
   max-width: 65%;
   border-radius: 8px;
-  padding: 6px 9px 8px 9px;
-  font-size: 14.2px;
-  line-height: 19px;
-  box-shadow: 0 1px 0.5px rgba(11,20,26,.13);
+  padding: 8px 12px 12px 12px;
+  font-size: 14.5px;
+  line-height: 22px;
+  box-shadow: 0 1px 1px rgba(11,20,26,.15);
   position: relative;
 }
 
@@ -330,14 +359,14 @@
 .wa-msg-text {
   white-space: pre-wrap;
   word-wrap: break-word;
-  padding-right: 50px;
+  padding-right: 60px;
   margin: 0;
 }
 
 .wa-msg-meta {
   position: absolute;
-  right: 8px;
-  bottom: 4px;
+  right: 10px;
+  bottom: 6px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -393,4 +422,33 @@
   align-items: center;
   padding: 0 16px;
   border-bottom: 1px solid var(--wa-border);
+}
+
+.wa-dropdown-menu {
+  position: absolute;
+  top: 65px;
+  right: 20px;
+  background-color: var(--wa-dropdown-bg);
+  border: 1px solid var(--wa-border);
+  border-radius: 4px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  overflow: hidden;
+}
+
+.wa-dropdown-item {
+  padding: 14px 20px;
+  cursor: pointer;
+  color: var(--wa-text-main);
+  font-size: 14.5px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wa-dropdown-item:hover {
+  background-color: var(--wa-bg-hover);
 }

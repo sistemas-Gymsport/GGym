@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   try {
     // La URL de tu Webhook de n8n en el VPS
     const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_INVENTORY_URL;
-    const N8N_API_KEY = process.env.N8N_API_KEY_TEST;
+    const N8N_API_KEY = process.env.N8N_API_KEY;
 
     const response = await fetch(N8N_WEBHOOK_URL, {
       method: 'GET',

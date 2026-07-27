@@ -14,10 +14,23 @@ export default function ChatbotWhatsAppViewer() {
     const fetchLogs = async () => {
       try {
         const res = await fetch('/api/chatbot-logs');
+        
+        if (!res.ok) {
+          throw new Error(`Error del servidor: ${res.status}`);
+        }
+
         const data = await res.json();
-        setLogs(data);
+        
+        // Validación estricta: Si no es un array, asignamos un array vacío
+        if (Array.isArray(data)) {
+          setLogs(data);
+        } else {
+          console.error("La respuesta de la API no es un arreglo válido:", data);
+          setLogs([]);
+        }
       } catch (error) {
-        console.error(error);
+        console.error("Error al obtener los logs del chatbot:", error);
+        setLogs([]); // Evita que el .forEach() rompa la página
       } finally {
         setLoading(false);
       }

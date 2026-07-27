@@ -69,7 +69,9 @@ export default function ChatbotWhatsAppViewer() {
 
   const groupedChats = useMemo(() => {
     const groups = {};
-    logs.forEach(log => {
+    const sortedLogs = [...logs].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+    sortedLogs.forEach(log => {
       const numStr = log.numero ? String(log.numero) : 'Sin Numero';
       const nomStr = log.nombre ? String(log.nombre) : 'Desconocido';
       
@@ -270,9 +272,6 @@ export default function ChatbotWhatsAppViewer() {
                   onChange={(e) => setGlobalSearch(e.target.value)}
                 />
               </div>
-              <div>
-                <span className="wa-filter-badge">Todos</span>
-              </div>
             </div>
 
             <div className="wa-update-btn" onClick={fetchLogs}>
@@ -283,8 +282,16 @@ export default function ChatbotWhatsAppViewer() {
             <div className="wa-chat-list">
               {filteredChats.map((chat) => {
                 const lastMessage = chat.messages[chat.messages.length - 1];
-                const lastText = lastMessage.mensaje_cliente || lastMessage.mensaje_ia;
-                const isIncoming = !!lastMessage.mensaje_cliente;
+                let lastText = '';
+                let isIncoming = true;
+
+                if (lastMessage.mensaje_ia) {
+                  lastText = lastMessage.mensaje_ia;
+                  isIncoming = false;
+                } else if (lastMessage.mensaje_cliente) {
+                  lastText = lastMessage.mensaje_cliente;
+                  isIncoming = true;
+                }
                 
                 return (
                   <div 

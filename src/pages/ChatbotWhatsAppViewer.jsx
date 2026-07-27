@@ -458,8 +458,8 @@ export default function ChatbotWhatsAppViewer() {
                  <circle cx="160" cy="100" r="60" stroke="var(--wa-border)" strokeWidth="2"/>
                  <path d="M140 100 L155 115 L185 85" stroke="var(--wa-icon-active)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <h1 className="wa-empty-title">WhatsApp Web</h1>
-              <p className="wa-empty-text">Envía y recibe mensajes sin mantener tu teléfono conectado.<br/>Usa WhatsApp en hasta 4 dispositivos vinculados y 1 teléfono a la vez.</p>
+              <h1 className="wa-empty-title">WhatsApp del chatbot geogym</h1>
+              <p className="wa-empty-text">Visualiza los mensajes que le llegan al chatbot.</p>
             </div>
           )}
         </div>

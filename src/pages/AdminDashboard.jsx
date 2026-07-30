@@ -20,6 +20,36 @@ const branchFields = [
   'promotion_title', 'promotion_description', 'extra_information'
 ];
 
+const branchFieldLabels = {
+  name: 'NOMBRE',
+  short_name: 'NOMBRE CORTO',
+  maps_url: 'URL DE MAPS',
+  address: 'DIRECCIÓN',
+  monday_friday_hours: 'HORARIO LUNES A VIERNES',
+  saturday_hours: 'HORARIO SÁBADO',
+  sunday_hours: 'HORARIO DOMINGO',
+  visit_price: 'PRECIO VISITA',
+  week_price: 'PRECIO SEMANA',
+  monthly_price: 'PRECIO MENSUALIDAD',
+  quarterly_price: 'PRECIO TRIMESTRE',
+  semester_price: 'PRECIO SEMESTRE',
+  annual_price: 'PRECIO ANUALIDAD',
+  student_price: 'PRECIO ESTUDIANTE',
+  couple_price: 'PRECIO PAREJA',
+  group_price: 'PRECIO GRUPAL',
+  special_schedule: 'HORARIO ESPECIAL',
+  special_price: 'PRECIO ESPECIAL',
+  monthly_requirements: 'REQUISITOS MENSUALIDAD',
+  student_requirements: 'REQUISITOS ESTUDIANTE',
+  group_requirements: 'REQUISITOS GRUPAL',
+  payment_methods: 'MÉTODOS DE PAGO',
+  whatsapp: 'WHATSAPP',
+  social_media: 'REDES SOCIALES',
+  promotion_title: 'TÍTULO DE PROMOCIÓN',
+  promotion_description: 'DESCRIPCIÓN DE PROMOCIÓN',
+  extra_information: 'INFORMACIÓN EXTRA'
+};
+
 const ImageDropzone = ({ currentImage, onUpload, onRemove, placeholderText }) => {
   const [dragActive, setDragActive] = useState(false);
   const [preview, setPreview] = useState(null);
@@ -472,6 +502,7 @@ export default function AdminDashboard() {
         throw new Error(result.error || 'Error subida');
       }
     } catch (err) {
+      console.error(err);
       setSavingStatus('error subiendo imagen');
       setTimeout(() => setSavingStatus(null), 3000);
     }
@@ -1109,7 +1140,7 @@ export default function AdminDashboard() {
               <form id="branchForm" onSubmit={handleSaveBranch} className="admin-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
                 {branchFields.map(field => (
                   <div className="form-group" key={field}>
-                    <label className="form-label">{field.replace(/_/g, ' ').toUpperCase()}</label>
+                    <label className="form-label">{branchFieldLabels[field] || field.replace(/_/g, ' ').toUpperCase()}</label>
                     {field.includes('requirements') || field.includes('description') || field.includes('information') ? (
                       <textarea 
                         value={editingBranch[field] || ''}
@@ -1132,7 +1163,7 @@ export default function AdminDashboard() {
             </div>
             <div className="modal-footer">
               {editingBranch.id && (
-                <button onClick={() => requestDelete(() => handleDeleteBranch(editingBranch.id), 'Eliminar Sucursal Chatbot', '¿Estás seguro de eliminar esta sucursal del chatbot?')} className="btn-delete">
+                <button type="button" onClick={() => requestDelete(() => handleDeleteBranch(editingBranch.id), 'Eliminar Sucursal Chatbot', '¿Estás seguro de eliminar esta sucursal del chatbot?')} className="btn-delete">
                   Eliminar Definitivamente
                 </button>
               )}

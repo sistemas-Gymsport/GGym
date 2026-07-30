@@ -434,11 +434,19 @@ export default function AdminDashboard() {
     e.preventDefault();
     setSavingStatus('guardando...');
     try {
-      const method = editingBranch.id ? 'PUT' : 'POST';
+      const payload = { ...editingBranch };
+      
+      Object.keys(payload).forEach(key => {
+        if (payload[key] === '') {
+          payload[key] = null;
+        }
+      });
+
+      const method = payload.id ? 'PUT' : 'POST';
       await fetch('/api/chatbot-branches', {
         method: method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingBranch)
+        body: JSON.stringify(payload)
       });
       setIsBranchModalOpen(false);
       fetchChatbotBranches();
@@ -502,7 +510,6 @@ export default function AdminDashboard() {
         throw new Error(result.error || 'Error subida');
       }
     } catch (err) {
-      console.error(err);
       setSavingStatus('error subiendo imagen');
       setTimeout(() => setSavingStatus(null), 3000);
     }

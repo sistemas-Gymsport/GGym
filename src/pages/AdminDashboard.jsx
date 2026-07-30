@@ -10,6 +10,16 @@ const defaultColors = {
   borderColor: '#d1cec7'
 };
 
+const branchFields = [
+  'name', 'short_name', 'maps_url', 'address', 'monday_friday_hours',
+  'saturday_hours', 'sunday_hours', 'visit_price', 'week_price',
+  'monthly_price', 'quarterly_price', 'semester_price', 'annual_price',
+  'student_price', 'couple_price', 'group_price', 'special_schedule',
+  'special_price', 'monthly_requirements', 'student_requirements',
+  'group_requirements', 'payment_methods', 'whatsapp', 'social_media',
+  'promotion_title', 'promotion_description', 'extra_information'
+];
+
 const ImageDropzone = ({ currentImage, onUpload, onRemove, placeholderText }) => {
   const [dragActive, setDragActive] = useState(false);
   const [preview, setPreview] = useState(null);
@@ -146,6 +156,8 @@ export default function AdminDashboard() {
     locations: [],
     offers: []
   });
+  
+  const [chatbotBranches, setChatbotBranches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [savingStatus, setSavingStatus] = useState(null);
   
@@ -154,6 +166,9 @@ export default function AdminDashboard() {
 
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const [editingOffer, setEditingOffer] = useState(null);
+
+  const [isBranchModalOpen, setIsBranchModalOpen] = useState(false);
+  const [editingBranch, setEditingBranch] = useState(null);
 
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
@@ -169,6 +184,7 @@ export default function AdminDashboard() {
     const session = localStorage.getItem('geo_gym_session');
     if (!session) navigate('/login');
     fetchDashboardData();
+    fetchChatbotBranches();
   }, [navigate]);
 
   useEffect(() => {
@@ -188,9 +204,17 @@ export default function AdminDashboard() {
       const result = await res.json();
       if (result.success) setCmsData(result.data);
     } catch (err) {
-      console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchChatbotBranches = async () => {
+    try {
+      const res = await fetch('/api/chatbot-branches');
+      const result = await res.json();
+      setChatbotBranches(Array.isArray(result) ? result : []);
+    } catch (err) {
     }
   };
 
@@ -376,6 +400,44 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleSaveBranch = async (e) => {
+    e.preventDefault();
+    setSavingStatus('guardando...');
+    try {
+      const method = editingBranch.id ? 'PUT' : 'POST';
+      await fetch('/api/chatbot-branches', {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingBranch)
+      });
+      setIsBranchModalOpen(false);
+      fetchChatbotBranches();
+      setSavingStatus('guardado');
+      setTimeout(() => setSavingStatus(null), 1500);
+    } catch (err) {
+      setSavingStatus('error');
+      setTimeout(() => setSavingStatus(null), 2500);
+    }
+  };
+
+  const handleDeleteBranch = async (id) => {
+    setSavingStatus('eliminando...');
+    try {
+      await fetch('/api/chatbot-branches', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      setIsBranchModalOpen(false);
+      fetchChatbotBranches();
+      setSavingStatus('guardado');
+      setTimeout(() => setSavingStatus(null), 1500);
+    } catch (err) {
+      setSavingStatus('error');
+      setTimeout(() => setSavingStatus(null), 2500);
+    }
+  };
+
   const handleImageUploadConfirm = async (dataUrl, entityId, targetField, tableName) => {
     setSavingStatus('subiendo a Cloudinary...');
     try {
@@ -410,7 +472,6 @@ export default function AdminDashboard() {
         throw new Error(result.error || 'Error subida');
       }
     } catch (err) {
-      console.error(err);
       setSavingStatus('error subiendo imagen');
       setTimeout(() => setSavingStatus(null), 3000);
     }
@@ -469,6 +530,7 @@ export default function AdminDashboard() {
     { id: 'locations', label: 'Sucursales y Mapas' },
     { id: 'offers', label: 'Ofertas y Promociones' },
     { id: 'footer', label: 'Footer y Contacto' },
+    { id: 'chatbot-branches', label: 'Sucursales Chatbot (N8N)' },
     { id: 'chatbot', label: 'Registros del Chatbot', isExternalRoute: true, path: '/admin/chatbotgeogym' }
   ];
 
@@ -536,6 +598,10 @@ export default function AdminDashboard() {
               <div className="stat-card">
                 <h3>Total Ofertas</h3>
                 <p>{cmsData.offers?.length || 0}</p>
+              </div>
+              <div className="stat-card">
+                <h3>Sucursales Chatbot</h3>
+                <p>{chatbotBranches.length}</p>
               </div>
             </div>
           </div>
@@ -775,6 +841,40 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {activeSection === 'chatbot-branches' && (
+          <div>
+            <div className="admin-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <h3>Gestión de Sucursales Chatbot</h3>
+              <button 
+                onClick={() => { 
+                  const emptyBranch = branchFields.reduce((acc, field) => ({...acc, [field]: ''}), {});
+                  setEditingBranch(emptyBranch); 
+                  setIsBranchModalOpen(true); 
+                }} 
+                className="btn btn-primary" 
+                style={{ padding: '0.5rem 1.5rem', fontSize: '1rem' }}
+              >
+                + Añadir Sucursal
+              </button>
+            </div>
+            
+            <div className="list-grid">
+              {chatbotBranches.map((branch, index) => (
+                <div key={branch.id || index} className="location-item">
+                  <h4>{branch.name}</h4>
+                  <p><strong>Corto:</strong> {branch.short_name}</p>
+                  <p><strong>WA:</strong> {branch.whatsapp}</p>
+                  <div className="location-item-actions">
+                    <button onClick={() => { setEditingBranch(branch); setIsBranchModalOpen(true); }} className="btn-edit" style={{ flex: 1 }}>
+                      Editar
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
 
       {confirmModal.isOpen && (
@@ -992,6 +1092,52 @@ export default function AdminDashboard() {
               </button>
               <button onClick={() => setIsOfferModalOpen(false)} className="btn btn-primary">
                 Cerrar y Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isBranchModalOpen && editingBranch && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: '900px' }}>
+            <div className="modal-header">
+              <h3>{editingBranch.id ? 'Editar Sucursal Chatbot' : 'Nueva Sucursal Chatbot'}</h3>
+              <button onClick={() => setIsBranchModalOpen(false)} className="btn-close">×</button>
+            </div>
+            <div className="modal-body">
+              <form id="branchForm" onSubmit={handleSaveBranch} className="admin-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+                {branchFields.map(field => (
+                  <div className="form-group" key={field}>
+                    <label className="form-label">{field.replace(/_/g, ' ').toUpperCase()}</label>
+                    {field.includes('requirements') || field.includes('description') || field.includes('information') ? (
+                      <textarea 
+                        value={editingBranch[field] || ''}
+                        onChange={(e) => setEditingBranch({...editingBranch, [field]: e.target.value})}
+                        className="form-input"
+                        rows={3}
+                      />
+                    ) : (
+                      <input 
+                        type={field.includes('price') ? 'number' : 'text'}
+                        step={field.includes('price') ? '0.01' : undefined}
+                        value={editingBranch[field] || ''}
+                        onChange={(e) => setEditingBranch({...editingBranch, [field]: e.target.value})}
+                        className="form-input"
+                      />
+                    )}
+                  </div>
+                ))}
+              </form>
+            </div>
+            <div className="modal-footer">
+              {editingBranch.id && (
+                <button onClick={() => requestDelete(() => handleDeleteBranch(editingBranch.id), 'Eliminar Sucursal Chatbot', '¿Estás seguro de eliminar esta sucursal del chatbot?')} className="btn-delete">
+                  Eliminar Definitivamente
+                </button>
+              )}
+              <button type="submit" form="branchForm" className="btn btn-primary">
+                Guardar Cambios
               </button>
             </div>
           </div>

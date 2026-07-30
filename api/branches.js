@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   try {
     const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_BRANCHES_URL;
-    const N8N_API_KEY = process.env.N8N_API_KEY2;
+    const N8N_API_KEY = process.env.N8N_API_KEY;
 
     if (!N8N_WEBHOOK_URL || !N8N_API_KEY) {
       return res.status(500).json({ error: 'Configuracion de servidor incompleta' });
